@@ -54,7 +54,7 @@ const FarmerLogin = () =>
         alert(`Your phone number is ${values.phone}`)
     }
     return ( 
-        <div className="w-full max-w-96 p-6 rounded-lg shadow-md">
+        <>
              <div className="relative flex items-center justify-center mb-6">
                 <Link href="/login" className="absolute left-0">
                     <IoIosArrowRoundBack className="text-2xl hover:text-blue-500" />
@@ -80,11 +80,11 @@ const FarmerLogin = () =>
                         )}/>
 
                     <Button type="submit" variant="primaryAction" className="w-full">Send OTP</Button>
-                    </form>
+                </form>
 
                     <p className="mt-4 text-center">Not yet registered? <Link href={"/signup/farmer"} className="text-blue-600">Signup</Link></p>
             </Form>
-        </div>
+        </>
     )
 }
  
