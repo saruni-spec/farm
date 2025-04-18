@@ -46,7 +46,7 @@ const AdminLogin = () =>
         console.log(values)
     }
     return ( 
-        <div className="w-full max-w-96 p-6 rounded-lg shadow-md">
+        <>
              <div className="relative flex items-center justify-center mb-6">
                 <Link href="/login" className="absolute left-0">
                     <IoIosArrowRoundBack className="text-2xl hover:text-blue-500" />
@@ -82,7 +82,7 @@ const AdminLogin = () =>
 
                     <p className="mt-4 text-center">Not yet registered? <Link href={"/signup/admin"} className="text-blue-600">Register</Link></p>
             </Form>
-        </div>
+        </>
     )
 }
  
