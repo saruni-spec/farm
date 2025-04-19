@@ -189,7 +189,7 @@ const FarmerSignUp = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="bg-yellow-400 text-black placeholder-gray-700 border-none"
-                  placeholder="John Robert Williams"
+                  placeholder="John Kamau"
                   required
                 />
               </div>
