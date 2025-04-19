@@ -1,7 +1,11 @@
 "use client"
 
+import { useState } from "react"
+
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+
+import { ArrowLeft, Mail, Eye, EyeOff } from "lucide-react"
+
 //Importing Zod to be used in defining form schemas
 import { z } from "zod"
 
@@ -39,6 +43,12 @@ const AdminLogin = () =>
         }
     )
 
+    //Password visibilty state
+    const [passwordVisibility, setPasswordVisibility] = useState(false)
+
+    //Function to update the password visibility state
+    const togglePassword=() => setPasswordVisibility(!passwordVisibility)
+
     //Form submission handler
     const login = (values: z.infer<typeof formSchema>) =>
     {
@@ -50,17 +60,20 @@ const AdminLogin = () =>
                 <Link href="/get_started" className="absolute left-0">
                     <ArrowLeft className="text-2xl hover:text-blue-500" />
                 </Link>
-                <h2 className="text-lg font-semibold">Management Login</h2>
+                <h2 className="text-2xl font-semibold">Management Login</h2>
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(login)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(login)} className="space-y-4">
                     <FormField control={form.control} name="email" render={({ field }) => 
                         (
                             <FormItem>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel className="text-md">Email</FormLabel>
                                 <FormControl>
-                                    <Input type="email" placeholder="Enter your email" {...field} />
+                                    <div className="relative">
+                                        <Input type="email" placeholder="Enter your email" {...field} />
+                                        <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -68,9 +81,21 @@ const AdminLogin = () =>
                     <FormField control={form.control} name="password" render={({ field }) => 
                         (
                             <FormItem>
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel className="text-md">Password</FormLabel>
                                 <FormControl>
-                                    <Input type="password" placeholder="Enter your password" {...field} />
+                                    <div className="relative">
+                                        <Input type={passwordVisibility ? "text" : "password"} placeholder="Enter your password" {...field}/>
+                                        <button type="button" onClick={togglePassword} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                            {
+                                                passwordVisibility 
+                                                ? 
+                                                    <EyeOff size={18} /> 
+                                                : 
+                                                    <Eye size={18} />
+                                            }
+                                        </button>
+                                    </div>
+                                    
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
