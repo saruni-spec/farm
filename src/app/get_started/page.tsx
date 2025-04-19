@@ -18,7 +18,7 @@ export default function GetStarted() {
               asChild
               className="w-full max-w-xs bg-blue-500 hover:bg-blue-600 text-white mb-4"
             >
-              <Link href="/sign_up/farmer">Create Account</Link>
+              <Link href="/signup/farmer">Create Account</Link>
             </Button>
 
             <Button
@@ -39,7 +39,7 @@ export default function GetStarted() {
               asChild
               className="w-full max-w-xs bg-blue-500 hover:bg-blue-600 text-white mb-4"
             >
-              <Link href="/sign_up/admin">Create Account</Link>
+              <Link href="/signup/admin">Create Account</Link>
             </Button>
 
             <Button
