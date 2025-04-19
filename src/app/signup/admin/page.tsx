@@ -14,7 +14,7 @@ const ManagementSignUp = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     console.log({ email, fullName, password });
@@ -26,7 +26,7 @@ const ManagementSignUp = () => {
         <CardContent className="p-6">
           <div className="flex items-center mb-6">
             <Button variant="ghost" size="icon" className="mr-2" asChild>
-              <Link href="/get-started">
+              <Link href="/get_started">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
