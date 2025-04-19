@@ -204,7 +204,7 @@ const FarmerSignUp = () => {
 
               <div className="text-center mt-4">
                 <span className="text-gray-700">Already registered? </span>
-                <Link href="/login" className="text-blue-500 hover:underline">
+                <Link href="/login/farmer" className="text-blue-500 hover:underline">
                   Login
                 </Link>
               </div>
