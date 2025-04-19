@@ -1,8 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { IoIosArrowRoundBack } from "react-icons/io"
-
+import { ArrowLeft } from "lucide-react"
 //Importing Zod to be used in defining form schemas
 import { z } from "zod"
 
@@ -48,8 +47,8 @@ const AdminLogin = () =>
     return ( 
         <>
              <div className="relative flex items-center justify-center mb-6">
-                <Link href="/login" className="absolute left-0">
-                    <IoIosArrowRoundBack className="text-2xl hover:text-blue-500" />
+                <Link href="/get_started" className="absolute left-0">
+                    <ArrowLeft className="text-2xl hover:text-blue-500" />
                 </Link>
                 <h2 className="text-lg font-semibold">Management Login</h2>
             </div>
