@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { IoIosArrowRoundBack } from "react-icons/io"
+import { ArrowLeft } from "lucide-react"
 
 //Importing Zod to be used in defining form schemas
 import { z } from "zod"
@@ -56,8 +56,8 @@ const FarmerLogin = () =>
     return ( 
         <>
              <div className="relative flex items-center justify-center mb-6">
-                <Link href="/login" className="absolute left-0">
-                    <IoIosArrowRoundBack className="text-2xl hover:text-blue-500" />
+                <Link href="/get_started" className="absolute left-0">
+                    <ArrowLeft className="text-2xl hover:text-blue-500" />
                 </Link>
                 <h2 className="text-lg font-semibold">Login as a Farmer</h2>
             </div>
@@ -72,7 +72,7 @@ const FarmerLogin = () =>
                                     {/* Using Controller to connect the external PhoneInput to the react hook form */}
                                     <Controller name="phone" control={form.control} render={({ field: {onChange, value}}) =>
                                     (
-                                        <PhoneInput country={'ke'} value={value} onChange={onChange} inputStyle={{ width: "100%"}} dropdownStyle={{ zIndex: 1000}} enableSearch={true}/>
+                                        <PhoneInput country={'ke'} value={value} onChange={onChange} inputStyle={{ width: "100%",backgroundColor: "#FACC15"}} dropdownStyle={{ zIndex: 1000}} enableSearch={true}/>
                                     )}></Controller>
                                 </FormControl>
                                 <FormMessage />
