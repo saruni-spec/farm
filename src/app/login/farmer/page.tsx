@@ -23,6 +23,7 @@ import PhoneInput from "react-phone-input-2"
 
 //Importing the phone number validator function from react-phone-number-input
 import { isValidPhoneNumber } from "react-phone-number-input"
+import { redirect } from "next/navigation"
 
 //Creating a form validation schema using Zod
 const formSchema = z.object(
@@ -51,7 +52,8 @@ const FarmerLogin = () =>
     //Form submission handler
     const login = (values: z.infer<typeof formSchema>) =>
     {
-        alert(`Your phone number is ${values.phone}`)
+        console.log("Submitted phone number:", values.phone)
+        redirect("/dashboard")
     }
     return ( 
         <>
