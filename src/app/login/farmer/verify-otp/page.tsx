@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form"
 
 import OtpInput from "react-otp-input"
+import { redirect } from "next/navigation"
 
 //Creating the OTP schema
 const otpSchema = z.object(
@@ -39,7 +40,8 @@ const VerifyOTP = () =>
     //Form submission handler
     const verifyOTP = (values: z.infer<typeof otpSchema>) =>
     {
-        alert(`OTP ${values.otp} submitted successfully`)
+        console.log(values.otp)
+        redirect("/dashboard/map")
     }
 
     //Creating a sample mobile number to be used in extracting the last three digits

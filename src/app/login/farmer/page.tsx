@@ -53,7 +53,7 @@ const FarmerLogin = () =>
     const login = (values: z.infer<typeof formSchema>) =>
     {
         console.log("Submitted phone number:", values.phone)
-        redirect("/dashboard")
+        redirect("/login/farmer/verify-otp")
     }
     return ( 
         <>
