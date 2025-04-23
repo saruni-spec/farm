@@ -14,11 +14,11 @@ import {
 
 export default function CropManagementPage() {
   // Initial crop data
-  const [crops, setCrops] = useState([
+  const crops = [
     { id: 1, name: "Maize" },
     { id: 2, name: "Coffee Beries" },
     { id: 3, name: "Legumes" },
-  ]);
+  ];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showEmptyState, setShowEmptyState] = useState(false);
