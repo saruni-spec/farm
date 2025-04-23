@@ -1,3 +1,5 @@
+import { Checkbox } from "@/components/ui/checkbox"
+
 const Reports = () => 
 {
     return (
@@ -22,18 +24,22 @@ const Reports = () =>
                     <div>
                         <h2 className="text-lg font-semibold mb-2 text-gray-700">What to Include</h2>
                         <div className="flex flex-col gap-3 mb-6">
-                            <label className="flex items-center gap-2 text-sm text-gray-700">
-                                <input type="checkbox" name="includeboundary" className="accent-blue-500" />Farm boundary
-                            </label>
-                            <label className="flex items-center gap-2 text-sm text-gray-700">
-                                <input type="checkbox" name="includeplantingactivities" className="accent-blue-500"/>Planting Activities
-                            </label>
-                            <label className="flex items-center gap-2 text-sm text-gray-700">
-                                <input type="checkbox" name="includecurrentweather" className="accent-blue-500"/>Current Weather Statistics
-                            </label>
-                            <label className="flex items-center gap-2 text-sm text-gray-700">
-                                <input type="checkbox" name="includecroparea" className="accent-blue-500"/>Crop Area Boundary
-                            </label>
+                            <div className="flex items-center gap-2 text-sm text-gray-700">
+                                <Checkbox id="includeboundary" className="accent-blue-500 cursor-pointer"/> 
+                                <label htmlFor="includeboundary" className="text-sm cursor-pointer">Farm boundary</label>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-700">
+                                <Checkbox id="includeplantingactivities" className="accent-blue-500 cursor-pointer"/>
+                                <label htmlFor="includeplantingactivities" className="text-sm cursor-pointer">Planting Activities</label>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-700">
+                                <Checkbox id="includecurrentweather" className="accent-blue-500 cursor-pointer"/>
+                                <label htmlFor="includecurrentweather" className="text-sm cursor-pointer">Current Weather Statistics</label>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-gray-700">
+                                <Checkbox id="includecroparea" className="accent-blue-500 cursor-pointer"/>
+                                <label htmlFor="includecroparea" className="text-sm cursor-pointer">Crop Area Boundary</label>
+                            </div>
                         </div>
                     </div>
         
@@ -54,8 +60,8 @@ const Reports = () =>
                 </form>
             </div>
         </div>
-    );
-  };
+    )
+  }
   
-  export default Reports;
+export default Reports
   
