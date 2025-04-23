@@ -8,9 +8,9 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 const WeatherDashboard = () => 
 {
     return (
-        <div className="flex items-center justify-center p-4">
-            <div className="w-4/5">
-                <h1 className="text-center font-bold text-3xl mb-3">Weather Insights</h1>
+        <div className="flex items-center justify-center">
+            <div className="w-10/12">
+                <h1 className="text-center font-bold text-3xl mb-3 mt-2">Weather Insights</h1>
         
                 {/* Search Section */}
                 <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-2">
@@ -22,8 +22,8 @@ const WeatherDashboard = () =>
                 </div>
 
                 {/* Today Overview Section */}
-                <h2 className="text-xl font-semibold mt-2 mb-4">Today Overview</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                <h2 className="text-xl font-semibold mt-2 mb-3">Today Overview</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
                     {/* Main Weather Card */}
                     <div className="bg-white border-2 space-y-4 rounded-md px-6 py-3">
                         <p>
