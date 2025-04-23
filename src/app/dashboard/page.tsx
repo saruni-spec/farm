@@ -3,10 +3,10 @@ import Link from "next/link";
 const Dashboard = () => 
 {
     return ( 
-        <>
-            <Link href={"/weather"}>Weather</Link>
-            <Link href={"/reports"}>Reports</Link>
-        </>
+        <div className="flex justify-center gap-2">
+            <Link href={"/dashboard/weather"} className="text-blue-500 underline">Weather</Link>
+            <Link href={"/dashboard/reports"} className="text-blue-500 underline">Reports</Link>
+        </div>
      );
 }
  
