@@ -1,4 +1,4 @@
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox"
 
 const Reports = () => 
 {
@@ -60,8 +60,8 @@ const Reports = () =>
                 </form>
             </div>
         </div>
-    );
-  };
+    )
+  }
   
-export default Reports;
+export default Reports
   
