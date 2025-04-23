@@ -54,7 +54,7 @@ const AdminLogin = () =>
     const login = (values: z.infer<typeof formSchema>) =>
     {
         console.log(values)
-        redirect("/dashboard")
+        redirect("/login/admin/verify-otp")
     }
     return ( 
         <>

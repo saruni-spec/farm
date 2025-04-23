@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form"
 
 import OtpInput from "react-otp-input"
+import { redirect } from "next/navigation"
 
 //Creating the OTP schema
 const otpSchema = z.object(
@@ -39,16 +40,31 @@ const VerifyOTP = () =>
     //Form submission handler
     const verifyOTP = (values: z.infer<typeof otpSchema>) =>
     {
-        alert(`OTP ${values.otp} submitted successfully`)
+        console.log(`OTP ${values.otp} submitted successfully`)
+        redirect("/dashboard/map")
     }
 
-    //Creating a sample mobile number to be used in extracting the last three digits
-    const mobileNumber="+254707251073"
+    //Creating a sample email to be used in extracting the letters
+    const email="ndungu.muigai01@gmail.com"
     
+    // Split the email into username and domain
+    const [username, domain] = email.split("@")
+
+    // Choose how many characters you want to show from the start
+    const visibleLength = 5
+    const visiblePart = username.slice(0, visibleLength)
+    const maskedPart = "*".repeat(username.length - visibleLength)
+
+    // Combine to form the masked username
+    const maskedUsername = visiblePart + maskedPart
+
+    // Final masked email
+    const maskedEmail = `${maskedUsername}@${domain}`
+
     return ( 
         <>
             <h2 className="text-lg font-semibold text-center">Verify OTP</h2>
-            <p  className="text-center w-full">Enter OTP received on number ending in <span className="font-bold">{mobileNumber.slice(-3)}</span></p>
+            <p  className="text-center w-full">Enter OTP received on email address <span className="font-bold">{maskedEmail}</span></p>
             <Form {...otpForm}>
                 <form onSubmit={otpForm.handleSubmit(verifyOTP)} className="space-y-6">
                     <FormField control={otpForm.control} name="otp" render={({ }) => 
@@ -69,7 +85,7 @@ const VerifyOTP = () =>
                 </form>
             </Form>
         </>
-     );
+     )
 }
  
-export default VerifyOTP;
+export default VerifyOTP
