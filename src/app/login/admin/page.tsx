@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { redirect } from "next/navigation"
 
 //Creating a form validation schema using Zod
 const formSchema = z.object(
@@ -53,6 +54,7 @@ const AdminLogin = () =>
     const login = (values: z.infer<typeof formSchema>) =>
     {
         console.log(values)
+        redirect("/dashboard")
     }
     return ( 
         <>
