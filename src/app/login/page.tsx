@@ -85,7 +85,7 @@ const Login = () =>
                         <Button type="submit" variant="primaryAction" className="w-full">Send OTP</Button>
                     </form>
 
-                        <p className="mt-4 text-center">Not yet registered? <Link href={"/signup/farmer"} className="text-blue-600">Signup</Link></p>
+                        <p className="mt-4 text-center">Not yet registered? <Link href={"/signup"} className="text-blue-600">Signup</Link></p>
                 </Form>
             </div>
         </div>

@@ -8,13 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-const ManagementSignUp = () => {
+const SignUp = () => 
+{
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => 
+  {
     e.preventDefault();
 
     console.log({ email, fullName, password });
@@ -31,7 +33,7 @@ const ManagementSignUp = () => {
               </Link>
             </Button>
             <h1 className="text-xl font-semibold text-center flex-1 pr-8">
-              Management Sign Up
+               Sign Up
             </h1>
           </div>
 
@@ -101,7 +103,7 @@ const ManagementSignUp = () => {
               <div className="text-center mt-4">
                 <span className="text-gray-700">Already registered? </span>
                 <Link
-                  href="/login/admin"
+                  href="/login"
                   className="text-blue-500 hover:underline"
                 >
                   Login
@@ -115,4 +117,4 @@ const ManagementSignUp = () => {
   );
 };
 
-export default ManagementSignUp;
+export default SignUp;
