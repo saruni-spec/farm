@@ -19,16 +19,6 @@ const AppSidebar = () =>
             title: "Planting",
             url: "/dashboard/planting",
             icon: <Sprout />
-        },
-        {
-            title: "Weather",
-            url: "/dashboard/weather",
-            icon: <CloudSun />
-        },
-        {
-            title: "Reports",
-            url: "/dashboard/reports",
-            icon: <ClipboardList />
         }
     ]
     return ( 
