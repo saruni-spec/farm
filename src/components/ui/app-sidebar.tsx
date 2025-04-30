@@ -47,6 +47,12 @@ const AppSidebar = () => {
       icon: <Sprout className="h-5 w-5" />,
       hasSubmenu: false,
     },
+    {
+      title: "Farm Map Test Page",
+      url: "/dashboard/test",
+      icon: <Map className="h-5 w-5" />,
+      hasSubmenu: true,
+    },
   ];
 
   const isMapActive = pathName.startsWith("/dashboard/map");
