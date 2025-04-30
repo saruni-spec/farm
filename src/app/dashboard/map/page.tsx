@@ -3,238 +3,162 @@ import { useState } from "react";
 import {
   Plus,
   Minus,
-  Layers,
   Info,
   Maximize2,
-  Search,
   ChevronDown,
+  FileText,
+  X,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export default function FarmMapping() {
-  const [showPopup, setShowPopup] = useState(true);
   const selectedDate = "02/07/2025";
-  const [mapLayers, setMapLayers] = useState({
-    cropStress: true,
-    cropYield: true,
-    soilMoisture: true,
-    soilOrganicCarbon: true,
-  });
-
-  const toggleLayer = (layer: keyof typeof mapLayers) => {
-    setMapLayers({
-      ...mapLayers,
-      [layer]: !mapLayers[layer],
-    });
-  };
+  const [reportsDialogOpen, setReportsDialogOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <div className="flex flex-col h-screen w-full relative">
       {/* Main Map Area with Satellite Imagery */}
-      <div className="relative flex-grow bg-gray-300 overflow-hidden">
-        {/* Placeholder for the map - in a real app, you'd use a mapping library like Leaflet or Mapbox */}
-        <div
-          className="w-full h-full bg-cover bg-center"
-          style={{
-            backgroundImage: "url('/Landing.png')",
-            backgroundBlendMode: "overlay",
-            backgroundColor: "rgba(150, 150, 150, 0.3)",
-          }}
-        />
+      <div className="relative flex-grow overflow-hidden">
+        {/* Interactive map instead of background image */}
+        <div className="w-full h-full relative">
+          <img
+            src="/Landing.png"
+            alt="Farm Map"
+            className="w-full h-full object-cover"
+            style={{
+              filter: "brightness(1.05) contrast(1.05)",
+            }}
+          />
+          {/* Optional overlay for better visibility of controls */}
+        </div>
 
-        {/* Add Farm Button */}
+        {/* Control Panel - Top Left */}
         <div className="absolute top-4 left-4 z-10">
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-2 rounded-md py-2 px-3">
-            <Plus size={16} />
-            Add your farm
-          </Button>
+          {/* Container with fixed position for Add Farm Button */}
+          <div className="relative">
+            {/* Add Farm Button */}
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 rounded-md py-2 px-4 shadow-md"
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
+              <Plus size={16} />
+              Add your farm
+            </Button>
+
+            {/* Info Text - With transition for smooth appearance */}
+            <div
+              className={`absolute top-full w-50 left-0 mt-3 flex items-center gap-2 bg-white p-3 rounded-md shadow-md transition-all duration-300 ${
+                isHovering
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 -translate-y-1 pointer-events-none"
+              }`}
+            >
+              <Info size={16} className="text-blue-600 flex-shrink-0" />
+              <span className="text-sm text-gray-700">
+                Select an area type then trace it&apos;s outline by clicking on
+                each corner.
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Info Text */}
-        <div className="absolute top-4 left-40 z-10 flex items-center gap-2 bg-white p-2 rounded-md shadow-sm">
-          <Info size={16} />
-          <span className="text-sm text-gray-700">
-            Select an area type then trace it&apos;s outline by clicking on each
-            corner.
-          </span>
-        </div>
+        {/* Control Panel - Top Right */}
+        <div className="absolute top-4 right-4 z-10 flex flex-col gap-3">
+          <div className="bg-white p-3 rounded-md shadow-md flex items-center gap-4">
+            {/* Date Selector */}
+            <div className="flex items-center gap-2">
+              <Calendar size={16} className="text-blue-600" />
+              <div className="relative flex items-center">
+                <Input
+                  value={selectedDate}
+                  className="pr-8 border-gray-200 w-36 h-8 text-sm"
+                />
+                <ChevronDown
+                  size={16}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600"
+                />
+              </div>
+            </div>
 
-        {/* Map Controls */}
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="bg-white p-2 rounded-md shadow-sm"
-          >
-            <img src="/Landing.png" alt="Satellite" className="w-6 h-6" />
-          </Button>
-          <Button
-            variant="outline"
-            className="bg-white p-2 rounded-md shadow-sm"
-          >
-            <img src="/Landing.png" alt="Map" className="w-6 h-6" />
-          </Button>
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-medium">Show Map Labels</span>
-            <Switch defaultChecked />
+            {/* Layer Controls */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="bg-white hover:bg-gray-50 p-2 rounded-md"
+              >
+                <img src="/Landing.png" alt="Satellite" className="w-6 h-6" />
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-white hover:bg-gray-50 p-2 rounded-md"
+              >
+                <img src="/Landing.png" alt="Map" className="w-6 h-6" />
+              </Button>
+            </div>
+
+            {/* Map Labels Toggle */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Map Labels</span>
+              <Switch defaultChecked />
+            </div>
           </div>
         </div>
 
         {/* Zoom Controls */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex flex-col bg-white rounded-md shadow-sm">
-          <Button variant="ghost" className="p-2">
-            <Plus size={20} />
+        <div className="absolute right-4 top-2/3 transform -translate-y-1/2 z-10 flex flex-col bg-white rounded-md shadow-md overflow-hidden">
+          <Button variant="ghost" className="p-2 hover:bg-gray-100">
+            <Plus size={20} className="text-gray-700" />
           </Button>
           <div className="h-px bg-gray-200" />
-          <Button variant="ghost" className="p-2">
-            <Minus size={20} />
+          <Button variant="ghost" className="p-2 hover:bg-gray-100">
+            <Minus size={20} className="text-gray-700" />
           </Button>
-        </div>
-
-        {/* Fullscreen Button */}
-        <div className="absolute right-4 bottom-40 z-10">
           <Button
             variant="outline"
-            className="bg-white p-2 rounded-md shadow-sm"
+            className="bg-white hover:bg-gray-50 p-2 rounded-md shadow-md"
           >
-            <Maximize2 size={20} />
+            <Maximize2 size={20} className="text-gray-700" />
           </Button>
         </div>
 
-        {/* Legend */}
-        <div className="absolute left-4 bottom-40 bg-white rounded-md shadow-sm p-2 z-10 w-36">
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold">Legend</span>
-            <ChevronDown size={16} />
-          </div>
+        {/* Bottom Right Controls */}
+        <div className="absolute right-4 bottom-4 z-10 flex flex-col gap-3">
+          {/* Fullscreen Button */}
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Crop Stress</span>
-              <ChevronDown size={16} className="text-blue-500" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Crop Yield</span>
-              <ChevronDown size={16} className="text-blue-500" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Soil Moisture</span>
-              <ChevronDown size={16} className="text-blue-500" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Soil Organic Carbon</span>
-              <ChevronDown size={16} className="text-blue-500" />
-            </div>
-          </div>
-        </div>
-      </div>
+          {/* Generate Report Button */}
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md shadow-md flex items-center gap-2"
+            onClick={() => setReportsDialogOpen(true)}
+          >
+            <FileText size={18} />
+            <span className="text-sm font-medium">Generate Report</span>
+          </Button>
 
-      {/* Right Sidebar */}
-      <div className="absolute top-0 right-0 h-full w-64 bg-blue-500 text-white z-20 overflow-y-auto">
-        <div className="p-4 flex items-center justify-between border-b border-blue-400">
-          <div className="flex items-center gap-2">
-            <Layers size={20} />
-            <span className="font-medium">Layers</span>
-          </div>
-        </div>
-
-        <div className="p-4 border-b border-blue-400">
-          <div className="flex items-center gap-2 mb-3">
-            <Layers size={16} />
-            <span className="text-sm font-medium">Filter Layers</span>
-          </div>
-
-          <div className="mb-3">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-sm">Select Date:</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="relative w-full">
-                <Input
-                  value={selectedDate}
-                  className="pr-8 bg-blue-600 text-white border-blue-400 w-full"
-                />
-                <ChevronDown
-                  size={16}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                />
-              </div>
-              <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
-                <Search size={16} />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="mb-2">
-              <span className="text-sm font-medium">Selected Layers:</span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={mapLayers.cropStress}
-                  onCheckedChange={() => toggleLayer("cropStress")}
-                  id="cropStress"
-                />
-                <label htmlFor="cropStress" className="text-sm cursor-pointer">
-                  Crop Stress
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={mapLayers.cropYield}
-                  onCheckedChange={() => toggleLayer("cropYield")}
-                  id="cropYield"
-                />
-                <label htmlFor="cropYield" className="text-sm cursor-pointer">
-                  Crop Yield
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={mapLayers.soilMoisture}
-                  onCheckedChange={() => toggleLayer("soilMoisture")}
-                  id="soilMoisture"
-                />
-                <label
-                  htmlFor="soilMoisture"
-                  className="text-sm cursor-pointer"
-                >
-                  Soil Moisture
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={mapLayers.soilOrganicCarbon}
-                  onCheckedChange={() => toggleLayer("soilOrganicCarbon")}
-                  id="soilOrganicCarbon"
-                />
-                <label
-                  htmlFor="soilOrganicCarbon"
-                  className="text-sm cursor-pointer"
-                >
-                  Soil Organic Carbon
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 flex items-center justify-between">
-          <span className="text-sm">Show Popup</span>
-          <Switch checked={showPopup} onCheckedChange={setShowPopup} />
+          {/* Show Popup Toggle */}
         </div>
       </div>
 
       {/* Results Panel */}
-      <div className="bg-white w-full border-t border-gray-200">
-        <div className="px-4 py-2 font-semibold">Results</div>
-        <div className="flex divide-x divide-gray-200">
-          <div className="flex-1 p-4 flex flex-col items-center justify-center">
-            <h3 className="font-semibold">Soil Moisture</h3>
-            <div className="text-blue-500 text-2xl font-bold mb-1">
+      <div className="bg-white border-t border-gray-200 shadow-md">
+        <div className="px-6 py-3 font-semibold text-gray-800 border-b border-gray-100">
+          Results
+        </div>
+        <div className="flex divide-x divide-gray-100">
+          <div className="flex-1 p-5 flex flex-col items-center justify-center">
+            <h3 className="font-semibold text-gray-700 mb-2">Soil Moisture</h3>
+            <div className="text-blue-600 text-2xl font-bold mb-2">
               34.78 cm<sup>3</sup>
             </div>
             <p className="text-xs text-gray-600 text-center">
@@ -242,17 +166,19 @@ export default function FarmMapping() {
             </p>
           </div>
 
-          <div className="flex-1 p-4 flex flex-col items-center justify-center">
-            <h3 className="font-semibold">Crop Stress</h3>
-            <div className="text-red-500 text-2xl font-bold mb-1">0.98</div>
+          <div className="flex-1 p-5 flex flex-col items-center justify-center">
+            <h3 className="font-semibold text-gray-700 mb-2">Crop Stress</h3>
+            <div className="text-red-600 text-2xl font-bold mb-2">0.98</div>
             <p className="text-xs text-gray-600 text-center">
               Meaning: High Risk of stress
             </p>
           </div>
 
-          <div className="flex-1 p-4 flex flex-col items-center justify-center">
-            <h3 className="font-semibold">Soil Organic Carbon</h3>
-            <div className="text-purple-500 text-2xl font-bold mb-1">
+          <div className="flex-1 p-5 flex flex-col items-center justify-center">
+            <h3 className="font-semibold text-gray-700 mb-2">
+              Soil Organic Carbon
+            </h3>
+            <div className="text-purple-600 text-2xl font-bold mb-2">
               24 g/kg
             </div>
             <p className="text-xs text-gray-600 text-center">
@@ -260,9 +186,9 @@ export default function FarmMapping() {
             </p>
           </div>
 
-          <div className="flex-1 p-4 flex flex-col items-center justify-center">
-            <h3 className="font-semibold">Crop Yield</h3>
-            <div className="text-green-500 text-2xl font-bold mb-1">
+          <div className="flex-1 p-5 flex flex-col items-center justify-center">
+            <h3 className="font-semibold text-gray-700 mb-2">Crop Yield</h3>
+            <div className="text-green-600 text-2xl font-bold mb-2">
               200 kg/ha
             </div>
             <p className="text-xs text-gray-600 text-center">
@@ -271,6 +197,158 @@ export default function FarmMapping() {
           </div>
         </div>
       </div>
+
+      {/* Reports Dialog */}
+      <Dialog open={reportsDialogOpen} onOpenChange={setReportsDialogOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-center font-bold text-2xl md:text-3xl mb-6 text-gray-800">
+              Generate Reports
+            </DialogTitle>
+            <DialogClose className="absolute right-4 top-4">
+              <X className="h-4 w-4" />
+            </DialogClose>
+          </DialogHeader>
+
+          <form className="space-y-6">
+            {/* Duration Selection */}
+            <div>
+              <h2 className="text-lg font-semibold mb-3 text-gray-700">
+                Choose Duration
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-500">Time</label>
+                  <input
+                    placeholder="HH:MM"
+                    type="time"
+                    name="time"
+                    required
+                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-500">Date</label>
+                  <input
+                    placeholder="DD/MM/YYYY"
+                    type="date"
+                    name="date"
+                    required
+                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-500">Month</label>
+                  <input
+                    placeholder="MM/YYYY"
+                    type="month"
+                    name="month"
+                    required
+                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-gray-500">Year</label>
+                  <input
+                    type="text"
+                    name="year"
+                    required
+                    placeholder="YYYY"
+                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Options to Include */}
+            <div>
+              <h2 className="text-lg font-semibold mb-3 text-gray-700">
+                What to Include
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                <div className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
+                  <input
+                    type="checkbox"
+                    id="includeboundary"
+                    className="accent-blue-500 cursor-pointer h-4 w-4"
+                  />
+                  <label
+                    htmlFor="includeboundary"
+                    className="text-sm cursor-pointer"
+                  >
+                    Farm boundary
+                  </label>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
+                  <input
+                    type="checkbox"
+                    id="includeplantingactivities"
+                    className="accent-blue-500 cursor-pointer h-4 w-4"
+                  />
+                  <label
+                    htmlFor="includeplantingactivities"
+                    className="text-sm cursor-pointer"
+                  >
+                    Planting Activities
+                  </label>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
+                  <input
+                    type="checkbox"
+                    id="includecurrentweather"
+                    className="accent-blue-500 cursor-pointer h-4 w-4"
+                  />
+                  <label
+                    htmlFor="includecurrentweather"
+                    className="text-sm cursor-pointer"
+                  >
+                    Current Weather Statistics
+                  </label>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
+                  <input
+                    type="checkbox"
+                    id="includecroparea"
+                    className="accent-blue-500 cursor-pointer h-4 w-4"
+                  />
+                  <label
+                    htmlFor="includecroparea"
+                    className="text-sm cursor-pointer"
+                  >
+                    Crop Area Boundary
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Format and Submit */}
+            <div>
+              <h2 className="text-lg font-semibold mb-3 text-gray-700">
+                Format
+              </h2>
+              <div className="flex items-center gap-4 mb-6">
+                <select
+                  title="Select format"
+                  name="format"
+                  className="border border-gray-300 rounded px-5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-1/6"
+                >
+                  <option value="pdf">PDF</option>
+                  <option value="csv">CSV</option>
+                  <option value="xlsx">Excel</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <Button
+                type="submit"
+                className="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700 transition mx-auto"
+              >
+                Generate Report
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
