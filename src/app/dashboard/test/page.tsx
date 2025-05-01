@@ -93,7 +93,7 @@ const Map = () =>
                                 }
                             }
                         }>
-                            <option value={""}>County</option>
+                            <option value={""}>Select County</option>
                             {
                                 allCounties.map(county =>
                                 {
@@ -135,7 +135,7 @@ const Map = () =>
                                 }
                             }
                         } disabled={!selectedCounty}>
-                            <option value={""}>Constituency</option>
+                            <option value={""}>Select Constituency</option>
                             {
                                 allConstituencies.map(constituency =>
                                 {
@@ -165,7 +165,7 @@ const Map = () =>
                                 setLong(lon)
                             }
                         } disabled={!selectedConstituency}>
-                            <option value={""}>Ward</option>
+                            <option value={""}>Select Ward</option>
                             {
                                 allWards.map(ward =>
                                 {
