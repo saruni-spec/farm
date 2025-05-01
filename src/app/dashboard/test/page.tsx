@@ -2,36 +2,76 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import MapLeaflet from './MapLeaflet'
 
-import { counties, constituencies} from "kenya"
-import { number } from 'zod'
+import dynamic from 'next/dynamic'
+const MapLeaflet = dynamic(() => import('./MapLeaflet'), { ssr: false })
+import { counties, constituencies} from "kenya";
+
+// Define the types for county, constituency, and ward
+interface County {
+    name: string;
+    code: string;
+    center: {
+        lat: number;
+        lon: number;
+    };
+    constituencies: { name: string; code: string; }[]; // Add the correct type for constituencies
+}
+
+interface Constituency {
+    name: string;
+    code: string;
+    center: {
+        lat: number;
+        lon: number;
+    };
+    wards: { name: string; code: string; center: { lat: number; lon: number; }; }[]; // Add the correct type for wards
+}
+
+interface Ward {
+    name: string;
+    code: string;
+    center: {
+        lat: number;
+        lon: number;
+    };
+}
 
 const Map = () => 
 {
-    const [allCounties, setAllCounties] = useState([])
-    const [allConstituencies, setAllConstituencies] = useState([])
-    const [allWards, setAllWards] = useState([])
+    const [allCounties, setAllCounties] = useState<County[]>([]); 
+    const [allConstituencies, setAllConstituencies] = useState<Constituency[]>([]);
+    const [allWards, setAllWards] = useState<Ward[]>([]);
+
+    const [loadingCounties, setLoadingCounties] = useState(false);
+    const [loadingConstituencies, setLoadingConstituencies] = useState(false);
+    const [loadingWards, setLoadingWards] = useState(false);
 
     const [selectedCounty, setSelectedCounty] =useState("")
     const [selectedConstituency, setSelectedConstituency] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
 
+    console.log(selectedWard)
+
     //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
-    const [lat, setLat] = useState<number>()
-    const [long, setLong] = useState<number>()
+    const [lat, setLat] = useState<number>(0);
+    const [long, setLong] = useState<number>(0);
 
     useEffect(()=>
     {
+        setLoadingCounties(true);
         const totalCounties = counties.filter(county => county.name !== "DIASPORA")
         const sortedCounties = totalCounties.sort((a, b) => parseInt(a.code) - parseInt(b.code))
         setAllCounties(sortedCounties)
+        setLoadingCounties(false);
     }, [])
 
     useEffect(()=>
     {
+        setLoadingConstituencies(true)
         const sortedConstituencies = constituencies.sort((a, b) => parseInt(a.code) - parseInt(b.code))
         setAllConstituencies(sortedConstituencies)
+        setLoadingConstituencies(false)
     }, [])
 
     //Styling for the individual dropdowns
@@ -68,13 +108,20 @@ const Map = () =>
                                 const county=allCounties.find(c => c.code === countyCode)
 
                                 //Getting the center of the county
-                                const countyCenter=county.center
+                                const countyCenter=county?.center
 
-                                //Setting the map position based on the center
-                                const { lat, lon } = countyCenter
+                                if(countyCenter)
+                                {
+                                    //Setting the map position based on the center
+                                    const { lat, lon } = countyCenter
 
-                                setLat(lat)
-                                setLong(lon)
+                                    setLat(lat)
+                                    setLong(lon)
+                                }
+                                else
+                                {
+                                    alert("County not found")
+                                }
 
                                 //Setting the constituencies for that county in the dropdown
                                 if(county && county.constituencies)
@@ -95,12 +142,18 @@ const Map = () =>
                         }>
                             <option value={""}>Select County</option>
                             {
-                                allCounties.map(county =>
-                                {
-                                    return(
-                                        <option key={county.code} value={county.code}>{county.name.charAt(0)+ county.name.slice(1).toLowerCase()}</option>
+                                loadingCounties
+                                ?
+                                    <option>Loading...</option>
+                                :
+                                    (
+                                        allCounties.map(county =>
+                                        {
+                                            return(
+                                                <option key={county.code} value={county.code}>{county.name.charAt(0)+ county.name.slice(1).toLowerCase()}</option>
+                                            )
+                                        })
                                     )
-                                })
                             }
                         </select>
                     </div>
@@ -113,21 +166,27 @@ const Map = () =>
                                 //Clearing the selected ward when the constituency changes
                                 setSelectedWard("")
 
+                                setLoadingWards(true)
+
                                 //Finding the constituency in the constituencies array
                                 const constituency=allConstituencies.find(c => c.code === constituencyCode)
 
                                 //Getting the constituency's center
-                                const constituencyCenter=constituency.center
+                                const constituencyCenter=constituency?.center
 
-                                //Setting the map position based on the center
-                                const { lat, lon } = constituencyCenter
+                                if(constituencyCenter)
+                                {
+                                    //Setting the map position based on the center
+                                    const { lat, lon } = constituencyCenter
 
-                                setLat(lat)
-                                setLong(lon)
+                                    setLat(lat)
+                                    setLong(lon)
+                                }
                                 
                                 if(constituency && constituency.wards)
                                 {
                                     setAllWards(constituency.wards)
+                                    setLoadingWards(false)
                                 }
                                 else
                                 {
@@ -137,12 +196,16 @@ const Map = () =>
                         } disabled={!selectedCounty}>
                             <option value={""}>Select Constituency</option>
                             {
-                                allConstituencies.map(constituency =>
-                                {
-                                    return(
-                                        <option key={constituency.code} value={constituency.code}>{constituency.name.charAt(0)+ constituency.name.slice(1).toLowerCase()}</option>
-                                    )
-                                })
+                                loadingConstituencies
+                                ?
+                                    <option>Loading...</option>
+                                :
+                                    allConstituencies.map(constituency =>
+                                    {
+                                        return(
+                                            <option key={constituency.code} value={constituency.code}>{constituency.name.charAt(0)+ constituency.name.slice(1).toLowerCase()}</option>
+                                        )
+                                    })
                             }
                         </select>
                     </div>
@@ -156,24 +219,30 @@ const Map = () =>
                                 const ward=allWards.find(w => w.code === wardCode)
 
                                 //Extracting the ward's coordinates
-                                const wardCenter = ward.center
+                                const wardCenter = ward?.center
 
-                                //Setting the map position based on the center
-                                const { lat, lon } = wardCenter
+                                if(wardCenter)
+                                {
+                                    //Setting the map position based on the center
+                                    const { lat, lon } = wardCenter
 
-                                setLat(lat)
-                                setLong(lon)
+                                    setLat(lat)
+                                    setLong(lon)
+                                }
                             }
                         } disabled={!selectedConstituency}>
                             <option value={""}>Select Ward</option>
                             {
-                                allWards.map(ward =>
-                                {
-                                    return(
-                                        <option key={ward.code} value={ward.code}>{ward.name.charAt(0).toUpperCase() + ward.name.slice(1).toLowerCase()}</option>
-                                    )
-                                }
-                                )
+                                loadingWards
+                                ?
+                                    <option>Loading...</option>
+                                :
+                                    allWards.map(ward =>
+                                    {
+                                        return(
+                                            <option key={ward.code} value={ward.code}>{ward.name.charAt(0).toUpperCase() + ward.name.slice(1).toLowerCase()}</option>
+                                        )
+                                    })
                             }
                         </select>
                     </div>

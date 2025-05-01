@@ -25,7 +25,6 @@
     "cmdk": "^1.1.1",
     "countries-list": "^3.1.1",
     "kenya": "^1.7.1",
-    "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "leaflet-draw": "^1.0.4",
     "lucide-react": "^0.488.0",
@@ -45,6 +44,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.17",
+    "@types/leaflet-draw": "^1.0.11",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
