@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react'
 import MapLeaflet from './MapLeaflet'
 
 import { counties, constituencies} from "kenya"
+import { number } from 'zod'
 
 const Map = () => 
 {
@@ -15,6 +16,10 @@ const Map = () =>
     const [selectedCounty, setSelectedCounty] =useState("")
     const [selectedConstituency, setSelectedConstituency] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
+
+    //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
+    const [lat, setLat] = useState<number>()
+    const [long, setLong] = useState<number>()
 
     useEffect(()=>
     {
@@ -46,7 +51,7 @@ const Map = () =>
             </Button>
             </div>
             <div className='flex flex-col-reverse lg:flex-row justify-around mt-2 gap-4'>
-                <MapLeaflet/>
+                <MapLeaflet lat={lat} long={long}/>
                 <div className='flex-1/3 space-y-4'>
                     <div className={dropdownClasses}>
                         <select name='county' className={selectClasses} onChange={e =>
@@ -54,8 +59,22 @@ const Map = () =>
                                 const countyCode=e.target.value
                                 setSelectedCounty(countyCode)
 
+                                // Reset selections
+                                setSelectedConstituency("")
+                                setSelectedWard("")      
+                                setAllWards([])      
+
                                 //Finding the county in the object array
                                 const county=allCounties.find(c => c.code === countyCode)
+
+                                //Getting the center of the county
+                                const countyCenter=county.center
+
+                                //Setting the map position based on the center
+                                const { lat, lon } = countyCenter
+
+                                setLat(lat)
+                                setLong(lon)
 
                                 //Setting the constituencies for that county in the dropdown
                                 if(county && county.constituencies)
@@ -91,8 +110,20 @@ const Map = () =>
                                 const constituencyCode=e.target.value
                                 setSelectedConstituency(constituencyCode)
 
+                                //Clearing the selected ward when the constituency changes
+                                setSelectedWard("")
+
                                 //Finding the constituency in the constituencies array
                                 const constituency=allConstituencies.find(c => c.code === constituencyCode)
+
+                                //Getting the constituency's center
+                                const constituencyCenter=constituency.center
+
+                                //Setting the map position based on the center
+                                const { lat, lon } = constituencyCenter
+
+                                setLat(lat)
+                                setLong(lon)
                                 
                                 if(constituency && constituency.wards)
                                 {
@@ -116,7 +147,24 @@ const Map = () =>
                         </select>
                     </div>
                     <div className={dropdownClasses}>
-                        <select name='ward' className={selectClasses} onChange={e => setSelectedWard(e.target.value)} disabled={!selectedConstituency}>
+                        <select name='ward' className={selectClasses} onChange={e => 
+                            {
+                                const wardCode=e.target.value
+                                setSelectedWard(wardCode)
+
+                                //Finding the ward from the list of wards
+                                const ward=allWards.find(w => w.code === wardCode)
+
+                                //Extracting the ward's coordinates
+                                const wardCenter = ward.center
+
+                                //Setting the map position based on the center
+                                const { lat, lon } = wardCenter
+
+                                setLat(lat)
+                                setLong(lon)
+                            }
+                        } disabled={!selectedConstituency}>
                             <option value={""}>Ward</option>
                             {
                                 allWards.map(ward =>

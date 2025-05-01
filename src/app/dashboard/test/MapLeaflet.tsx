@@ -12,12 +12,13 @@ import * as L from "leaflet"
 import 'leaflet-draw';
 
 import DrawControl from './DrawControl';
+import MapUpdater from './MapUpdater';
 
-// Nairobi coordinates
-const position: [number, number] = [-1.286389, 36.817223];
-
-const MapLeaflet = () => 
+const MapLeaflet = ({ lat = -1.286389, long  = 36.817223 }: { lat?: number; long: number; }) => 
 {
+  // Nairobi coordinates
+  const position: [number, number] = [lat, long]
+
   const [mounted, setMounted] = useState(false)
   useEffect(() => 
   {
@@ -33,18 +34,19 @@ const MapLeaflet = () =>
   return (
     <div className="w-full h-[350px]">
         <MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
-            <LayersControl position="topright">
-                {/* OpenStreetMap */}
-                <LayersControl.BaseLayer checked name="OpenStreetMap">
-                    <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                </LayersControl.BaseLayer>
+          <MapUpdater lat={lat} long={long} />
+          <LayersControl position="topright">
+              {/* OpenStreetMap */}
+              <LayersControl.BaseLayer checked name="OpenStreetMap">
+                  <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              </LayersControl.BaseLayer>
 
-                {/* Esri Satellite */}
-                <LayersControl.BaseLayer name="Satellite View (Esri)">
-                    <TileLayer attribution="Tiles &copy; Esri &mdash; Source: Esri" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"/>
-                </LayersControl.BaseLayer>
-            </LayersControl>
-            <DrawControl />
+              {/* Esri Satellite */}
+              <LayersControl.BaseLayer name="Satellite View (Esri)">
+                  <TileLayer attribution="Tiles &copy; Esri &mdash; Source: Esri" url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"/>
+              </LayersControl.BaseLayer>
+          </LayersControl>
+          <DrawControl />
         </MapContainer>
     </div>
   );
