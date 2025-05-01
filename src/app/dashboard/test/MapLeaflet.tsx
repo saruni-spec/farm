@@ -14,7 +14,7 @@ import 'leaflet-draw'
 import DrawControl from './DrawControl'
 import MapUpdater from './MapUpdater'
 
-const MapLeaflet = ({ lat = -1.286389, long = 36.817223 }: { lat?: number; long: number }) => 
+const MapLeaflet = ({ lat = -1.286389, long = 36.817223 }: { lat: number; long: number }) => 
 {
   // Map coordinates
   const position: [number, number] = [lat, long]

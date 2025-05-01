@@ -5,7 +5,8 @@ const MapUpdater = ({ lat, long }: { lat: number; long: number }) =>
 {
   const map = useMap()
 
-  useEffect(() => {
+  useEffect(() => 
+  {
     const newCenter: [number, number] = [lat, long]
     map.setView(newCenter)
   }, [lat, long, map])

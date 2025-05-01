@@ -54,8 +54,8 @@ const Map = () =>
     console.log(selectedWard)
 
     //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
-    const [lat, setLat] = useState<number>(0);
-    const [long, setLong] = useState<number>(0);
+    const [lat, setLat] = useState<number>(-1.286389);
+    const [long, setLong] = useState<number>(36.817223);
 
     useEffect(()=>
     {
