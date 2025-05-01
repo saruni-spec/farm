@@ -1,64 +1,65 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useMap } from "react-leaflet"
-import L, { Layer } from "leaflet"
+import L from "leaflet"
 import "leaflet-draw"
+import "leaflet-draw/dist/leaflet.draw.css"
 
 const DrawControl = () => 
 {
     const map = useMap()
+    const drawControlRef = useRef<L.Control.Draw | null>(null)
 
     useEffect(() => 
     {
         const drawnItems = new L.FeatureGroup()
         map.addLayer(drawnItems)
 
-        // Remove existing draw control (avoid duplicates)
-        const existingControls = map._controlContainer?.querySelector(".leaflet-draw-toolbar")
-        if (existingControls) 
+        // Remove existing draw control if any
+        if (drawControlRef.current) 
         {
-            const drawControl = map._controls?.find((ctrl: unknown) => ctrl instanceof L.Control.Draw)
-            if (drawControl) 
-            {
-                map.removeControl(drawControl)
-            }
+            map.removeControl(drawControlRef.current)
         }
 
-        const drawControl = new L.Control.Draw(
+        const drawControl = new L.Control.Draw({
+        edit: 
         {
-            edit: 
-            {
-                featureGroup: drawnItems,
-            },
-            draw: 
-            {
-                polyline: false,
-                rectangle: true,
-                polygon: true,
-                circle: false,
-                marker: false,
-                circlemarker: false,
-            },
+            featureGroup: drawnItems,
+        },
+        draw: 
+        {
+            polyline: false,
+            rectangle: {}, // empty object means enabled with default options
+            polygon: {},
+            circle: false,
+            marker: false,
+            circlemarker: false,
+        },
         })
 
+        drawControlRef.current = drawControl
         map.addControl(drawControl)
 
-        // Typed listener
-        const onDrawCreated = (e: L.DrawEvents.Created) => 
+        // Handler
+        const onDrawCreated = (e: L.LeafletEvent) => 
         {
-            const layer: Layer = e.layer
+            const event = e as L.DrawEvents.Created
+            const layer = event.layer as L.Polygon | L.Rectangle
             drawnItems.addLayer(layer)
             console.log("Drawn shape:", layer.toGeoJSON())
         }
 
-        map.on(L.Draw.Event.CREATED as keyof L.DrawEvents, onDrawCreated)
+        map.on("draw:created", onDrawCreated)
 
         return () => 
         {
-            map.removeControl(drawControl)
+            if (drawControlRef.current) 
+            {
+                map.removeControl(drawControlRef.current)
+            }
             map.removeLayer(drawnItems)
-            map.off(L.Draw.Event.CREATED as keyof L.DrawEvents, onDrawCreated)
+            map.off("draw:created", onDrawCreated)
         }
     }, [map])
 

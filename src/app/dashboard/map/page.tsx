@@ -21,6 +21,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+import Image from "next/image";
+
 export default function FarmMapping() {
   const selectedDate = "02/07/2025";
   const [reportsDialogOpen, setReportsDialogOpen] = useState(false);
@@ -32,7 +34,7 @@ export default function FarmMapping() {
       <div className="relative flex-grow overflow-hidden">
         {/* Interactive map instead of background image */}
         <div className="w-full h-full relative">
-          <img
+          <Image
             src="/Landing.png"
             alt="Farm Map"
             className="w-full h-full object-cover"
@@ -98,13 +100,13 @@ export default function FarmMapping() {
                 variant="outline"
                 className="bg-white hover:bg-gray-50 p-2 rounded-md"
               >
-                <img src="/Landing.png" alt="Satellite" className="w-6 h-6" />
+                <Image src="/Landing.png" alt="Satellite" className="w-6 h-6" />
               </Button>
               <Button
                 variant="outline"
                 className="bg-white hover:bg-gray-50 p-2 rounded-md"
               >
-                <img src="/Landing.png" alt="Map" className="w-6 h-6" />
+                <Image src="/Landing.png" alt="Map" className="w-6 h-6" />
               </Button>
             </div>
 
