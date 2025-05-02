@@ -242,7 +242,7 @@ const Map = () =>
                 <ResultCard title='Soil Moisture' value="34.78 cm³" meaning='Average moisture' color='text-blue-600'/>
                 <ResultCard title='Crop Stress' value="0.98" meaning='High risk of stress' color='text-red-600'/>
                 <ResultCard title='Organic Carbon' value="24 g/kg" meaning='Average soil carbon experienced' color='text-purple-600'/>
-                <ResultCard title='Crop Yield' value="200 kg/ha" meaning='Good yield' color='text-greeh-600'/>
+                <ResultCard title='Crop Yield' value="200 kg/ha" meaning='Good yield' color='text-green-600'/>
             </div>
         </div>
      )
