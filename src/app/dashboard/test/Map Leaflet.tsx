@@ -11,10 +11,10 @@ import { useEffect, useState } from 'react'
 import * as L from 'leaflet'
 import 'leaflet-draw'
 
-import DrawControl from './DrawControl'
-import MapUpdater from './MapUpdater'
+import DrawControl from './Draw Control'
+import MapUpdater from './Map Updater'
 
-const MapLeaflet = ({ lat = -1.286389, long = 36.817223 }: { lat: number; long: number }) => 
+const MapLeaflet = ({ lat = -1.286389, long = 36.817223, height= 350 }: { lat: number; long: number; height?: number }) => 
 {
   // Map coordinates
   const position: [number, number] = [lat, long]
@@ -36,7 +36,7 @@ const MapLeaflet = ({ lat = -1.286389, long = 36.817223 }: { lat: number; long: 
   if (!mounted) return null // Don't render until after mount
 
   return (
-    <div className="w-full h-[350px]">
+    <div style={{ height: `${height}px`, width: '100%' }} className={`relative z-0`}>
       <MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
         <MapUpdater lat={lat} long={long} />
         <LayersControl position="topright">

@@ -25,7 +25,10 @@ const buttonVariants = cva(
         primaryAction: "bg-[#1976D2] text-white hover:bg-[#1565C0]",
 
         //Custom variant for landing page buttons
-        landing: "bg-white text-green-600 text-md hover:underline"
+        landing: "bg-white text-green-600 text-md hover:underline",
+
+        //Custom button variant for the dashboard map save buttons
+        save: "bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 rounded-md py-2 px-4 shadow-md"
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
