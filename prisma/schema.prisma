@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// Do not run migrations or deploy using prisma untill the geometry type is supported
+
+model users {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  email      String    @unique
+  password   String
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  admin      admin[]
+  farmer     farmer[]
+}
+
+
+model admin {
+  id      Int   @id @default(autoincrement())
+  user_id Int
+  users   users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_admin_user")
+}
+
+model farmer {
+  id      Int     @id @default(autoincrement())
+  user_id Int
+  users   users   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_farmer_user")
+  farms   farms[]
+}
+
+//
+// Do not use prisma for farms table
+
+
+model farms {
+  id        Int                      @id @default(autoincrement())
+  farmer_id Int
+  name      String?
+  geom      Unsupported("geometry")?
+  farmer    farmer                   @relation(fields: [farmer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_farm_farmer")
+
+  @@index([geom], map: "idx_farms_geom", type: Gist)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
