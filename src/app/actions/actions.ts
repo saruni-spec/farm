@@ -1,8 +1,13 @@
 "use server";
 
 import { neonClient as client } from "../../../database/dbconn";
+import { Position } from "geojson";
 
-export const saveFarm = async (coordinates, farmer_id, name) => {
+export const saveFarm = async (
+  coordinates: Position[][],
+  farmer_id: number,
+  name: string
+) => {
   // Ensure the polygon is closed by repeating the first coordinate at the end
   if (coordinates[0][0] !== coordinates[0][coordinates[0].length - 1]) {
     coordinates[0].push(coordinates[0][0]);
