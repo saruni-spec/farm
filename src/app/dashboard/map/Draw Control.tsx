@@ -27,7 +27,7 @@ const DrawControl = () => {
       },
       draw: {
         polyline: false,
-        rectangle: {}, // empty object means enabled with default options
+        rectangle: {},
         polygon: {},
         circle: false,
         marker: false,
@@ -38,7 +38,6 @@ const DrawControl = () => {
     drawControlRef.current = drawControl;
     map.addControl(drawControl);
 
-    // Handler
     const onDrawCreated = (e: L.LeafletEvent) => {
       const event = e as L.DrawEvents.Created;
       const layer = event.layer as L.Polygon | L.Rectangle;
@@ -48,7 +47,7 @@ const DrawControl = () => {
       console.log("Drawn shape:", geojson);
       const coordinates = geojson.geometry.coordinates as Position[][];
       saveFarm(coordinates, 1, "Farm");
-      //
+
       alert("Farm saved successfully!");
     };
 

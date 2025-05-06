@@ -33,7 +33,6 @@ const MapLeaflet = ({
   long: number;
   height?: number;
 }) => {
-  // Map initial center coordinates
   const position: [number, number] = [lat, long];
 
   const [mounted, setMounted] = useState(false);
@@ -43,35 +42,33 @@ const MapLeaflet = ({
 
   useEffect(() => {
     setMounted(true);
-    // Fix for default Leaflet icons when using Webpack/bundlers
+
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: "leaflet/dist/images/marker-icon-2x.png",
       iconUrl: "leaflet/dist/images/marker-icon.png",
       shadowUrl: "leaflet/dist/images/marker-shadow.png",
     });
 
-    // Async function to fetch farms
+    // fetch farms
     const fetchFarms = async () => {
       try {
         setLoading(true);
-        setError(null); // Clear previous errors
+        setError(null);
         const fetchedFarms = await getFarms();
         setFarms(fetchedFarms);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching farms:", err);
-        setError("Failed to load farms."); // Set an error message
+        setError("Failed to load farms.");
       } finally {
         setLoading(false);
       }
     };
 
-    // Call the fetch function when the component mounts
     fetchFarms();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
-  if (!mounted) return null; // Don't render map until after mount to prevent hydration issues
+  if (!mounted) return null;
 
-  // Optional: Render loading or error state if needed
   if (loading) {
     return (
       <div
@@ -108,7 +105,6 @@ const MapLeaflet = ({
         {/* MapUpdater will change the view if lat/long props change */}
         <MapUpdater lat={lat} long={long} />
 
-        {/* Base Layers Control */}
         <LayersControl position="topright">
           {/* OpenStreetMap */}
           <LayersControl.BaseLayer checked name="OpenStreetMap">
@@ -130,10 +126,8 @@ const MapLeaflet = ({
         {/* Render the fetched farms */}
         {farms.map((farm) => {
           try {
-            // Parse the GeoJSON string
             const geoJson = JSON.parse(farm.geometry);
 
-            // Check if the geometry is a Polygon and has coordinates
             if (
               geoJson.type === "Polygon" &&
               geoJson.coordinates &&
@@ -149,7 +143,7 @@ const MapLeaflet = ({
                   coord[0],
                 ]);
 
-              // Basic path options for the polygon (customize colors/styles as needed)
+              // Basic path options for the polygon
               const polygonOptions = {
                 color: "green",
                 fillColor: "#90ee90",
@@ -157,13 +151,11 @@ const MapLeaflet = ({
               };
 
               return (
-                // Use the farm ID as the key for list rendering
                 <Polygon
                   key={farm.id}
                   positions={polygonPositions}
                   pathOptions={polygonOptions}
                 >
-                  {/* Add a popup to display the farm name */}
                   <Popup>{farm.name}</Popup>
                 </Polygon>
               );
@@ -171,16 +163,14 @@ const MapLeaflet = ({
             // If geometry is not a valid Polygon or has no coordinates, don't render
             return null;
           } catch (parseError) {
-            // Log errors for specific farms if GeoJSON parsing fails
             console.error(
               `Error parsing GeoJSON for farm ${farm.id}:`,
               parseError
             );
-            return null; // Don't render this farm
+            return null;
           }
         })}
 
-        {/* Draw Control for drawing new features (if needed) */}
         <DrawControl />
       </MapContainer>
     </div>
