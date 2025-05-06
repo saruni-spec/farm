@@ -2,14 +2,14 @@
 import { Client } from "pg";
 //
 // use for local database
-const client = new Client({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: Number(process.env.DB_PORT),
-});
-client.connect();
+// const client = new Client({
+//   user: process.env.DB_USER,
+//   host: process.env.DB_HOST,
+//   database: process.env.DB_NAME,
+//   password: process.env.DB_PASSWORD,
+//   port: Number(process.env.DB_PORT),
+// });
+// client.connect();
 
 // use for neon database
 const neonClient = new Client({
@@ -17,5 +17,5 @@ const neonClient = new Client({
 });
 neonClient.connect();
 
-export default client;
+// export default client;
 export { neonClient };
