@@ -1,6 +1,6 @@
 "use server";
 
-import client from "../../../database/dbconn";
+import { neonClient as client } from "../../../database/dbconn";
 
 export const saveFarm = async (coordinates, farmer_id, name) => {
   // Ensure the polygon is closed by repeating the first coordinate at the end

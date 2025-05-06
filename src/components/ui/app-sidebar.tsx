@@ -13,11 +13,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 type Layer = "cropStress" | "cropYield" | "soilMoisture" | "soilOrganicCarbon";
 
-const AppSidebar = () => {
+// Define the props interface, including the new callback
+interface AppSidebarProps {
+  // Callback function triggered when a layer checkbox is toggled
+  // It receives the layer name and its new checked state (boolean)
+  onLayerToggle: (layer: Layer, isChecked: boolean) => void;
+  // Optional: You might want to pass the initial/current state of layers
+  // managed by the parent component to keep the checkboxes in sync if
+  // the sidebar state isn't the single source of truth.
+  // currentMapLayers?: { [key in Layer]: boolean };
+}
+
+// Accept the new prop
+const AppSidebar = ({ onLayerToggle }: AppSidebarProps) => {
   const pathName = usePathname();
   const [showLegend, setShowLegend] = useState(false);
 
-  // Layer state moved from FarmMapping to AppSidebar
+  // We keep a local state for the checkboxes' checked status
+  // This state dictates how the checkboxes *look* in the sidebar UI.
+  // The parent component will use the onLayerToggle callback to manage
+  // the actual state used by the map.
   const [mapLayers, setMapLayers] = useState({
     cropStress: true,
     cropYield: true,
@@ -25,12 +40,19 @@ const AppSidebar = () => {
     soilOrganicCarbon: true,
   });
 
-  // Toggle function for layer visibility
-  const toggleLayer = (layer: Layer) => {
+  // Toggle function for layer visibility (updates local state AND calls parent callback)
+  const handleCheckboxToggle = (layer: Layer) => {
+    // Calculate the new state
+    const newCheckedState = !mapLayers[layer];
+
+    // Update the local state for the checkbox appearance
     setMapLayers({
       ...mapLayers,
-      [layer]: !mapLayers[layer],
+      [layer]: newCheckedState,
     });
+
+    // Call the parent's callback function to report the change
+    onLayerToggle(layer, newCheckedState);
   };
 
   // Navigation data
@@ -47,12 +69,7 @@ const AppSidebar = () => {
       icon: <Sprout className="h-5 w-5" />,
       hasSubmenu: false,
     },
-    {
-      title: "Farm Map Test Page",
-      url: "/dashboard/test",
-      icon: <Map className="h-5 w-5" />,
-      hasSubmenu: true,
-    },
+    // Add other navigation items here
   ];
 
   const isMapActive = pathName.startsWith("/dashboard/map");
@@ -71,17 +88,26 @@ const AppSidebar = () => {
         <nav className="flex-grow">
           {data.map((link) => {
             const isActive = pathName.startsWith(link.url);
-            const isCurrentMapLink = link.url.includes("map");
+            const isCurrentMapLink = link.url.includes("map"); // Check if this is the Map link
 
             return (
               <div key={link.url}>
+                {/* The main navigation link */}
                 <Link
                   href={link.url}
                   className={`flex items-center p-2 space-x-3 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 ${
                     isActive ? "bg-gray-200 dark:bg-gray-700 font-semibold" : ""
                   }`}
+                  // Keep the onClick to toggle the submenu visibility when clicking the main map link
                   onClick={() => {
-                    setShowLegend(true);
+                    // Only toggle legend for the map link when it's active
+                    if (isCurrentMapLink && isMapActive) {
+                      setShowLegend(!showLegend);
+                    } else {
+                      // Optionally, if not the map link or not active, just navigate
+                      // and assume parent page handles initial legend state
+                      setShowLegend(false); // Or set based on parent state
+                    }
                   }}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -89,24 +115,26 @@ const AppSidebar = () => {
                   <span>{link.title}</span>
                   {link.hasSubmenu && (
                     <span className="ml-auto">
+                      {/* Show chevron based on legend state for the active map link */}
                       {isCurrentMapLink && isMapActive ? (
                         showLegend ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (
                           <ChevronDown className="h-4 w-4" />
                         )
-                      ) : link.hasSubmenu ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : null}
+                      ) : (
+                        // Keep default chevron for other submenu items if any
+                        link.hasSubmenu && <ChevronDown className="h-4 w-4" />
+                      )}
                     </span>
                   )}
                 </Link>
 
-                {/* Combined Legend & Layer Selection */}
+                {/* Layer Selection Submenu - Only shows for the active Map link */}
                 {isCurrentMapLink &&
                   link.hasSubmenu &&
-                  showLegend &&
-                  isMapActive && (
+                  showLegend && // Only show if showLegend is true
+                  isMapActive && ( // Only show when on the map page path
                     <div
                       className={`transition-all duration-300 overflow-hidden ${
                         showLegend
@@ -123,45 +151,42 @@ const AppSidebar = () => {
                           </span>
                         </div>
 
-                        {/* Layer toggles */}
+                        {/* Layer toggles - Checkbox and simple text label */}
                         <div className="space-y-2 pl-2">
                           <div className="flex items-center gap-2">
                             <Checkbox
                               checked={mapLayers.cropStress}
-                              onCheckedChange={() => toggleLayer("cropStress")}
+                              // Use the new handler which calls the parent callback
+                              onCheckedChange={() =>
+                                handleCheckboxToggle("cropStress")
+                              }
                               id="cropStress"
                             />
+                            {/* REMOVED LINK: Label now directly controls the checkbox */}
                             <label
                               htmlFor="cropStress"
-                              className="text-sm cursor-pointer flex items-center gap-1"
+                              className="text-sm cursor-pointer flex items-center gap-1 hover:text-gray-800 dark:hover:text-gray-200" // Added hover styles for label
                             >
                               <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
-                              <Link
-                                href="/dashboard/map/stress"
-                                className="hover:underline"
-                              >
-                                Crop Stress
-                              </Link>
+                              Crop Stress {/* Plain text */}
                             </label>
                           </div>
 
                           <div className="flex items-center gap-2">
                             <Checkbox
                               checked={mapLayers.cropYield}
-                              onCheckedChange={() => toggleLayer("cropYield")}
+                              onCheckedChange={() =>
+                                handleCheckboxToggle("cropYield")
+                              }
                               id="cropYield"
                             />
+                            {/* REMOVED LINK */}
                             <label
                               htmlFor="cropYield"
-                              className="text-sm cursor-pointer flex items-center gap-1"
+                              className="text-sm cursor-pointer flex items-center gap-1 hover:text-gray-800 dark:hover:text-gray-200"
                             >
                               <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
-                              <Link
-                                href="/dashboard/map/yield"
-                                className="hover:underline"
-                              >
-                                Crop Yield
-                              </Link>
+                              Crop Yield {/* Plain text */}
                             </label>
                           </div>
 
@@ -169,21 +194,17 @@ const AppSidebar = () => {
                             <Checkbox
                               checked={mapLayers.soilMoisture}
                               onCheckedChange={() =>
-                                toggleLayer("soilMoisture")
+                                handleCheckboxToggle("soilMoisture")
                               }
                               id="soilMoisture"
                             />
+                            {/* REMOVED LINK */}
                             <label
                               htmlFor="soilMoisture"
-                              className="text-sm cursor-pointer flex items-center gap-1"
+                              className="text-sm cursor-pointer flex items-center gap-1 hover:text-gray-800 dark:hover:text-gray-200"
                             >
                               <div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
-                              <Link
-                                href="/dashboard/map/moisture"
-                                className="hover:underline"
-                              >
-                                Soil Moisture
-                              </Link>
+                              Soil Moisture {/* Plain text */}
                             </label>
                           </div>
 
@@ -191,21 +212,17 @@ const AppSidebar = () => {
                             <Checkbox
                               checked={mapLayers.soilOrganicCarbon}
                               onCheckedChange={() =>
-                                toggleLayer("soilOrganicCarbon")
+                                handleCheckboxToggle("soilOrganicCarbon")
                               }
                               id="soilOrganicCarbon"
                             />
+                            {/* REMOVED LINK */}
                             <label
                               htmlFor="soilOrganicCarbon"
-                              className="text-sm cursor-pointer flex items-center gap-1"
+                              className="text-sm cursor-pointer flex items-center gap-1 hover:text-gray-800 dark:hover:text-gray-200"
                             >
                               <div className="w-3 h-3 bg-purple-500 rounded-sm"></div>
-                              <Link
-                                href="/dashboard/map/soc"
-                                className="hover:underline"
-                              >
-                                Soil Organic Carbon
-                              </Link>
+                              Soil Organic Carbon {/* Plain text */}
                             </label>
                           </div>
                         </div>

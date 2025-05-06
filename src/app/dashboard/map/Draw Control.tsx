@@ -6,6 +6,7 @@ import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { saveFarm } from "@/app/actions/actions";
+import { Position } from "geojson";
 
 const DrawControl = () => {
   const map = useMap();
@@ -45,8 +46,10 @@ const DrawControl = () => {
 
       const geojson = layer.toGeoJSON();
       console.log("Drawn shape:", geojson);
-      const coordinates = geojson.geometry.coordinates;
+      const coordinates = geojson.geometry.coordinates as Position[][];
       saveFarm(coordinates, 1, "Farm");
+      //
+      alert("Farm saved successfully!");
     };
 
     map.on("draw:created", onDrawCreated);

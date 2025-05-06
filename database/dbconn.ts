@@ -1,5 +1,7 @@
 // Create a connection to the database
 import { Client } from "pg";
+//
+// use for local database
 const client = new Client({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -9,4 +11,11 @@ const client = new Client({
 });
 client.connect();
 
+// use for neon database
+const neonClient = new Client({
+  connectionString: process.env.NEON_URL,
+});
+neonClient.connect();
+
 export default client;
+export { neonClient };
