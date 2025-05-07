@@ -47,8 +47,6 @@ const DrawControl = () => {
       console.log("Drawn shape:", geojson);
       const coordinates = geojson.geometry.coordinates as Position[][];
       saveFarm(coordinates, 1, "Farm");
-
-      alert("Farm saved successfully!");
     };
 
     map.on("draw:created", onDrawCreated);
