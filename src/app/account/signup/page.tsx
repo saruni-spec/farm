@@ -1,6 +1,10 @@
 "use client"
 
 import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 //Importing the phone number input
 import PhoneInput from "react-phone-input-2"
 import 'react-phone-input-2/lib/style.css'
@@ -56,22 +60,22 @@ const Signup = () =>
 
             <form onSubmit={handleSignup} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
                 <div>
-                    <label className="block mb-1 font-medium">First Name</label>
-                    <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required placeholder="John" className={inputStyling}/>
+                    <Label className="block mb-1 font-medium">First Name</Label>
+                    <Input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required placeholder="John" className={inputStyling}/>
                 </div>
 
                 <div>
-                    <label className="block mb-1 font-medium">Last Name</label>
-                    <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required placeholder="Doe" className={inputStyling}/>
+                    <Label className="block mb-1 font-medium">Last Name</Label>
+                    <Input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required placeholder="Doe" className={inputStyling}/>
                 </div>
 
                 <div>
-                    <label className="block mb-1 font-medium">Email</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className={inputStyling}/>
+                    <Label className="block mb-1 font-medium">Email</Label>
+                    <Input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className={inputStyling}/>
                 </div>
 
                 <div>
-                    <label className="block mb-1 font-medium">Phone Number</label>
+                    <Label className="block mb-1 font-medium">Phone Number</Label>
                     <PhoneInput country={'ke'} value={formData.phone} onChange={handlePhoneChange} inputStyle={{ width: "100%"}} dropdownStyle={{ zIndex: 1000}} enableSearch={true}/>
                     {
                         phoneError && <p className="text-red-600 text-sm mt-1">{phoneError}</p>
@@ -79,9 +83,9 @@ const Signup = () =>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block mb-1 font-medium">Password</label>
+                    <Label className="block mb-1 font-medium">Password</Label>
                     <div className="relative">
-                        <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className={inputStyling}/>
+                        <Input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className={inputStyling}/>
                         <button type="button" className="absolute right-1 top-0 h-full" onClick={()=> setShowPassword(!showPassword)}>
                             {
                                 showPassword
@@ -94,10 +98,10 @@ const Signup = () =>
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="block mb-1 font-medium">Confirm Password</label>
+                    <Label className="block mb-1 font-medium">Confirm Password</Label>
                     <div className="relative">
-                        <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className={inputStyling}/>
-                        <button type="button" className="absolute right-1 top-0 h-full" onClick={()=> setShowConfirmPassword(!showConfirmPassword)}>
+                        <Input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className={inputStyling}/>
+                        <Button type="button" className="absolute right-1 top-0 h-full" onClick={()=> setShowConfirmPassword(!showConfirmPassword)}>
                             {
                                 showConfirmPassword
                                 ?
@@ -105,12 +109,12 @@ const Signup = () =>
                                 :
                                     <Eye className="h-5 w-5 text-black"/>
                             }
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
                 <div className="col-span-1 md:col-span-2">
-                    <button type="submit" className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">Sign Up</button>
+                    <Button type="submit" className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition">Sign Up</Button>
                 </div>
 
                 <div className="col-span-1 md:col-span-2 text-center text-gray-600">
