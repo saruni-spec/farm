@@ -101,15 +101,15 @@ const Signup = () =>
                     <Label className="block mb-1 font-medium">Confirm Password</Label>
                     <div className="relative">
                         <Input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className={inputStyling}/>
-                        <Button type="button" className="absolute right-1 top-0 h-full" onClick={()=> setShowConfirmPassword(!showConfirmPassword)}>
+                        <button type="button" className="absolute right-2 top-0 h-full" onClick={()=> setShowConfirmPassword(!showConfirmPassword)}>
                             {
                                 showConfirmPassword
                                 ?
-                                    <EyeOff className="h-5 w-5 text-black"/>
+                                    <EyeOff className="h-6 w-6 text-black"/>
                                 :
-                                    <Eye className="h-5 w-5 text-black"/>
+                                    <Eye className="h-6 w-6 text-black"/>
                             }
-                        </Button>
+                        </button>
                     </div>
                 </div>
 
