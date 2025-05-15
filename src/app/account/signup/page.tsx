@@ -17,7 +17,7 @@ import Link from "next/link"
 
 const Signup = () => 
 {
-    const [formData, setFormData] = useState(
+    const [userDetails, setUserDetails] = useState(
     {
         firstName: "",
         lastName: "",
@@ -31,11 +31,11 @@ const Signup = () =>
     const [showConfirmPassword, setShowConfirmPassword] =useState(false)
     const [phoneError, setPhoneError] = useState("")
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, [e.target.name]: e.target.value})
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setUserDetails({ ...userDetails, [e.target.name]: e.target.value})
 
     const handlePhoneChange = (value: string) => 
     {
-        setFormData({ ...formData, phone: value })
+        setUserDetails({ ...userDetails, phone: value })
         if(!isValidPhoneNumber(`+${value}`))
         {
             setPhoneError("Please enter a valid phone number")
@@ -49,10 +49,12 @@ const Signup = () =>
     const handleSignup = (e: React.FormEvent) => 
     {
         e.preventDefault()
-        console.log(formData)
+        console.log(userDetails)
     }
 
     const inputStyling="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+
+    const labelStyling = "block mb-2 font-medium"
 
     return (
         <div className="w-full max-w-xl p-4 md:p-5 bg-white rounded-lg">
@@ -60,32 +62,32 @@ const Signup = () =>
 
             <form onSubmit={handleSignup} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black">
                 <div>
-                    <Label className="block mb-1 font-medium">First Name</Label>
-                    <Input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required placeholder="John" className={inputStyling}/>
+                    <Label className={labelStyling}>First Name</Label>
+                    <Input type="text" name="firstName" value={userDetails.firstName} onChange={handleChange} required placeholder="John" className={inputStyling}/>
                 </div>
 
                 <div>
-                    <Label className="block mb-1 font-medium">Last Name</Label>
-                    <Input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required placeholder="Doe" className={inputStyling}/>
+                    <Label className={labelStyling}>Last Name</Label>
+                    <Input type="text" name="lastName" value={userDetails.lastName} onChange={handleChange} required placeholder="Doe" className={inputStyling}/>
                 </div>
 
                 <div>
-                    <Label className="block mb-1 font-medium">Email</Label>
-                    <Input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className={inputStyling}/>
+                    <Label className={labelStyling}>Email</Label>
+                    <Input type="email" name="email" value={userDetails.email} onChange={handleChange} required placeholder="you@example.com" className={inputStyling}/>
                 </div>
 
                 <div>
-                    <Label className="block mb-1 font-medium">Phone Number</Label>
-                    <PhoneInput country={'ke'} value={formData.phone} onChange={handlePhoneChange} inputStyle={{ width: "100%"}} dropdownStyle={{ zIndex: 1000}} enableSearch={true}/>
+                    <Label className={labelStyling}>Phone Number</Label>
+                    <PhoneInput country={'ke'} value={userDetails.phone} onChange={handlePhoneChange} inputStyle={{ width: "100%"}} dropdownStyle={{ zIndex: 1000}} enableSearch={true}/>
                     {
                         phoneError && <p className="text-red-600 text-sm mt-1">{phoneError}</p>
                     }
                 </div>
 
-                <div className="space-y-2">
-                    <Label className="block mb-1 font-medium">Password</Label>
+                <div>
+                    <Label className={labelStyling}>Password</Label>
                     <div className="relative">
-                        <Input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} required placeholder="Enter your password" className={inputStyling}/>
+                        <Input type={showPassword ? "text" : "password"} name="password" value={userDetails.password} onChange={handleChange} required placeholder="Enter your password" className={inputStyling}/>
                         <button type="button" className="absolute right-1 top-0 h-full" onClick={()=> setShowPassword(!showPassword)}>
                             {
                                 showPassword
@@ -97,10 +99,10 @@ const Signup = () =>
                         </button>
                     </div>
                 </div>
-                <div className="space-y-2">
-                    <Label className="block mb-1 font-medium">Confirm Password</Label>
+                <div>
+                    <Label className={labelStyling}>Confirm Password</Label>
                     <div className="relative">
-                        <Input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className={inputStyling}/>
+                        <Input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" value={userDetails.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" className={inputStyling}/>
                         <button type="button" className="absolute right-2 top-0 h-full" onClick={()=> setShowConfirmPassword(!showConfirmPassword)}>
                             {
                                 showConfirmPassword
