@@ -88,7 +88,7 @@ const Signup = () => {
           "Signup successful, please check your email for confirmation."
         );
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Signup error:", err);
       setError("An unexpected error occurred during signup.");
     } finally {
