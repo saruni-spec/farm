@@ -15,7 +15,6 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/superbase/client";
-import router from "next/router";
 
 const Signup = () => {
   const [userDetails, setUserDetails] = useState({
@@ -83,7 +82,6 @@ const Signup = () => {
       } else if (data.user) {
         console.log("Signup successful:", data.user);
         setSuccess(true);
-        router.push("/account/login");
       } else if (data.session === null && data.user === null) {
         setSuccess(true);
         console.log(
