@@ -11,11 +11,11 @@ const Layout = ({ children }: { children: React.ReactNode }) =>
             title: "Home" 
         },
         { 
-            url: "/zones", 
+            url: "/dashboard/zones", 
             title: "Zones" 
         },
         { 
-            url: "/map", 
+            url: "/dashboard/map", 
             title: "Map"
         },
     ]
