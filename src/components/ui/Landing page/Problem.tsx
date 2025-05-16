@@ -28,7 +28,7 @@ const Problem = () =>
                         pageDetails.map(detail =>
                         {
                             return(
-                                <div key={detail.title}>
+                                <div key={detail.title} className="bg-white p-6 rounded-lg shadow-md text-left">
                                     <h3 className="font-semibold text-xl text-green-700">{detail.title}</h3>
                                     <p className="text-gray-600">{detail.text}</p>
                                 </div>

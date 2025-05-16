@@ -19,16 +19,16 @@ const Solution = () =>
         }
     ]
     return ( 
-        <section id="solution" className="py-4 px-6 md:px-12 bg-white text-gray-800">
+        <section id="solution" className="py-4 px-6  bg-white text-gray-800">
             <div className="max-w-6xl mx-auto text-center space-y-4">
                 <h2 className="text-3xl md:text-4xl font-bold text-green-700">Empowering Farmers with Smart, Data-Driven Decisions</h2>
                 <p className="text-lg text-gray-600">FarmSawa leverages AI and satellite technology to provide farmers with real-time insights and predictive analytics for sustainable tea farming.</p>
-                <div className="grid gap-8 md:grid-cols-2 text-left pt-4">
+                <div className="grid gap-4 md:grid-cols-2 text-left pt-4">
                     {
                         pageDetails.map(detail =>
                         {
                             return(
-                                <div key={detail.title}>
+                                <div key={detail.title} className="bg-white p-6 rounded-lg shadow-md text-left">
                                     <h3 className="font-semibold text-xl text-green-700">{detail.title}</h3>
                                     <p className="text-gray-600">{detail.text}</p>
                                 </div>
