@@ -1,2 +1,4 @@
 -Always ass comments at the top of what is being commented about,never after
--When adding comments to a function,always add a description of what the function does or why,doont add innputs or return types
+-Always add comments to the funtions to explain why they are there and what they do
+-When adding comments to a function,do not add inputs or return types or any other parameters
+- Do not add generic comments

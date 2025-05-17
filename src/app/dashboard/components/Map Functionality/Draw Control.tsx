@@ -1,83 +1,70 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import { useMap } from "react-leaflet"
-import L from "leaflet"
-import "leaflet-draw"
-import "leaflet-draw/dist/leaflet.draw.css"
+import { useEffect, useRef } from "react";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
+import { Position } from "geojson";
+import { createFarm } from "@/app/actions/actions";
 
-const DrawControl = () => 
-{
-    const map = useMap()
-    const drawControlRef = useRef<L.Control.Draw | null>(null)
+type drawings = "farm" | "segment";
 
-    useEffect(() => 
-    {
-        const drawnItems = new L.FeatureGroup()
-        map.addLayer(drawnItems)
+const DrawControl = ({ mode }: { mode: drawings }) => {
+  const map = useMap();
+  const drawControlRef = useRef<L.Control.Draw | null>(null);
 
-        // Remove existing draw control if any
-        if (drawControlRef.current) 
-        {
-            map.removeControl(drawControlRef.current)
-        }
+  useEffect(() => {
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
 
-        const drawControl = new L.Control.Draw({
-        edit: 
-        {
-            featureGroup: drawnItems,
-        },
-        draw: 
-        {
-            polyline: false,
-            rectangle: {}, // empty object means enabled with default options
-            polygon: {},
-            circle: false,
-            marker: false,
-            circlemarker: false,
-        },
-        })
+    // Remove existing draw control if any
+    if (drawControlRef.current) {
+      map.removeControl(drawControlRef.current);
+    }
 
-        drawControlRef.current = drawControl
-        map.addControl(drawControl)
+    const drawControl = new L.Control.Draw({
+      edit: {
+        featureGroup: drawnItems,
+      },
+      draw: {
+        polyline: false,
+        rectangle: {},
+        polygon: {},
+        circle: false,
+        marker: false,
+        circlemarker: false,
+      },
+    });
 
-        // Handle newlyt created shapes
-        const onDrawCreated = (e: L.LeafletEvent) => 
-        {
-            const event = e as L.DrawEvents.Created
-            const layer = event.layer as L.Polygon | L.Rectangle
-            drawnItems.addLayer(layer)
-            console.log("Drawn shape:", layer.toGeoJSON())
-        }
+    drawControlRef.current = drawControl;
+    map.addControl(drawControl);
 
-        // Handle edits to existing shapes
-        const onDrawEdited = (e: L.LeafletEvent) => 
-        {
-            const event = e as L.DrawEvents.Edited;
-            event.layers.eachLayer((layer: L.Layer) => 
-            {
-                if (layer instanceof L.Polygon || layer instanceof L.Rectangle) 
-                {
-                    console.log("Edited shape:", layer.toGeoJSON());
-                }
-            });
-        };
+    const onDrawCreated = async (e: L.LeafletEvent) => {
+      if (mode !== "farm") return;
+      const event = e as L.DrawEvents.Created;
+      const layer = event.layer as L.Polygon | L.Rectangle;
+      drawnItems.addLayer(layer);
 
-        map.on("draw:created", onDrawCreated)
-        map.on("draw:edited", onDrawEdited)
+      const geojson = layer.toGeoJSON();
+      console.log("Drawn shape:", geojson);
+      const coordinates = geojson.geometry.coordinates as Position[][];
 
-        return () => 
-        {
-            if (drawControlRef.current) 
-            {
-                map.removeControl(drawControlRef.current)
-            }
-            map.removeLayer(drawnItems)
-            map.off("draw:created", onDrawCreated)
-        }
-    }, [map])
+      await createFarm("Farm", coordinates);
+    };
 
-    return null
-}
+    map.on("draw:created", onDrawCreated);
 
-export default DrawControl
+    return () => {
+      if (drawControlRef.current) {
+        map.removeControl(drawControlRef.current);
+      }
+      map.removeLayer(drawnItems);
+      map.off("draw:created", onDrawCreated);
+    };
+  }, [map, mode]);
+
+  return null;
+};
+
+export default DrawControl;
