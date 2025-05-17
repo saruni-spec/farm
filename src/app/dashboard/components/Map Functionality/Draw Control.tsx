@@ -62,7 +62,7 @@ const DrawControl = ({ mode }: { mode: drawings }) => {
       map.removeLayer(drawnItems);
       map.off("draw:created", onDrawCreated);
     };
-  }, [map]);
+  }, [map, mode]);
 
   return null;
 };

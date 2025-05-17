@@ -58,7 +58,7 @@ const Map = ({
           <Expand />
         </button>
       </div>
-      <MapLeaflet lat={lat} long={long} height={height} />
+      <MapLeaflet mode="segment" lat={lat} long={long} height={height} />
     </div>
   );
 };
