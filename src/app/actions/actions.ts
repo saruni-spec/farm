@@ -1,32 +1,109 @@
 "use server";
 
-import { neonClient as client } from "../../../database/dbconn";
-import { Position } from "geojson";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+const supabase = createServerComponentClient({ cookies });
 
-export const saveFarm = async (
-  coordinates: Position[][],
-  farmer_id: number,
-  name: string
-) => {
-  // Ensure the polygon is closed by repeating the first coordinate at the end
-  if (coordinates[0][0] !== coordinates[0][coordinates[0].length - 1]) {
-    coordinates[0].push(coordinates[0][0]);
+export async function createFarm(
+  farmerId: string,
+  farmName: string,
+  farmGeometry: any
+) {
+  try {
+    const { data, error } = await supabase
+      .from("farm")
+      .insert([
+        {
+          farmer_id: farmerId,
+          name: farmName,
+          geom: farmGeometry,
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Error creating farm:", error);
+      return null;
+    }
+
+    console.log("Farm created successfully:", data);
+    return data; // Returns an array of inserted rows (usually one)
+  } catch (err) {
+    console.error("An unexpected error occurred while creating farm:", err);
+    return null;
   }
+}
 
-  // Convert coordinates to WKT format
-  const wkt = `POLYGON((${coordinates[0]
-    .map((coord) => `${coord[0]} ${coord[1]}`)
-    .join(", ")}))`;
+export async function getAllFarms() {
+  try {
+    const { data, error } = await supabase.from("farm").select("*");
 
-  await client.query(
-    "INSERT INTO farms (farmer_id, name, geom) VALUES ($1, $2, ST_GeomFromText($3, 4326))",
-    [farmer_id, name, wkt]
-  );
-};
+    if (error) {
+      console.error("Error fetching all farms:", error);
+      return null;
+    }
 
-export const getFarms = async () => {
-  const farms = await client.query(
-    "SELECT id, name, ST_AsGeoJSON(geom) as geometry FROM farms"
-  );
-  return farms.rows;
-};
+    console.log("All farms:", data);
+    return data;
+  } catch (err) {
+    console.error(
+      "An unexpected error occurred while fetching all farms:",
+      err
+    );
+    return null;
+  }
+}
+
+export async function getFarmsByFarmerId(farmerId: string) {
+  try {
+    const { data, error } = await supabase
+      .from("farm")
+      .select("*")
+      .eq("farmer_id", farmerId);
+
+    if (error) {
+      console.error(`Error fetching farms for farmer ${farmerId}:`, error);
+      return null;
+    }
+
+    console.log(`Farms for farmer ${farmerId}:`, data);
+    return data;
+  } catch (err) {
+    console.error(
+      `An unexpected error occurred while fetching farms for farmer ${farmerId}:`,
+      err
+    );
+    return null;
+  }
+}
+
+// Assuming you have the farm's ID
+async function deleteFarm(farmId: string) {
+  try {
+    const { error } = await supabase.from("farm").delete().eq("id", farmId);
+
+    if (error) {
+      console.error(`Error deleting farm ${farmId}:`, error);
+      return false;
+    }
+
+    console.log(`Farm ${farmId} deleted successfully.`);
+    return true;
+  } catch (err) {
+    console.error(
+      `An unexpected error occurred while deleting farm ${farmId}:`,
+      err
+    );
+    return false;
+  }
+}
+
+export async function getCurrentFarmerId() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    return user.id;
+  }
+  return null;
+}

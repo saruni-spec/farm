@@ -15,8 +15,8 @@ import "leaflet-draw";
 
 import DrawControl from "./Draw Control";
 import MapUpdater from "./Map Updater";
-
-import { getFarms } from "@/app/actions/actions";
+import { getFarmsByFarmerId } from "@/app/actions/actions";
+import { supabase } from "@/superbase/client";
 
 interface Farm {
   id: number;
@@ -51,11 +51,15 @@ const MapLeaflet = ({
 
     // fetch farms
     const fetchFarms = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
       try {
         setLoading(true);
         setError(null);
-        const fetchedFarms = await getFarms();
-        setFarms(fetchedFarms);
+        const fetchedFarms = await getFarmsByFarmerId(user.id);
+        setFarms(fetchedFarms || []);
       } catch (err) {
         console.error("Error fetching farms:", err);
         setError("Failed to load farms.");
