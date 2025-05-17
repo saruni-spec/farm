@@ -11,7 +11,7 @@ const AddFarm = ({
 }) => {
   return (
     <>
-      <MapLeaflet lat={lat} long={long} height={300} />
+      <MapLeaflet mode="farm" lat={lat} long={long} height={300} />
     </>
   );
 };

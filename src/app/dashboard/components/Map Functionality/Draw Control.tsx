@@ -8,7 +8,9 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import { Position } from "geojson";
 import { createFarm } from "@/app/actions/actions";
 
-const DrawControl = () => {
+type drawings = "farm" | "segment";
+
+const DrawControl = ({ mode }: { mode: drawings }) => {
   const map = useMap();
   const drawControlRef = useRef<L.Control.Draw | null>(null);
 
@@ -39,6 +41,7 @@ const DrawControl = () => {
     map.addControl(drawControl);
 
     const onDrawCreated = async (e: L.LeafletEvent) => {
+      if (mode !== "farm") return;
       const event = e as L.DrawEvents.Created;
       const layer = event.layer as L.Polygon | L.Rectangle;
       drawnItems.addLayer(layer);
