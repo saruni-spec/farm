@@ -5,8 +5,8 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { saveFarm } from "@/app/actions/actions";
 import { Position } from "geojson";
+import { createFarm } from "@/app/actions/actions";
 
 const DrawControl = () => {
   const map = useMap();
@@ -38,7 +38,7 @@ const DrawControl = () => {
     drawControlRef.current = drawControl;
     map.addControl(drawControl);
 
-    const onDrawCreated = (e: L.LeafletEvent) => {
+    const onDrawCreated = async (e: L.LeafletEvent) => {
       const event = e as L.DrawEvents.Created;
       const layer = event.layer as L.Polygon | L.Rectangle;
       drawnItems.addLayer(layer);
@@ -46,7 +46,8 @@ const DrawControl = () => {
       const geojson = layer.toGeoJSON();
       console.log("Drawn shape:", geojson);
       const coordinates = geojson.geometry.coordinates as Position[][];
-      saveFarm(coordinates, 1, "Farm");
+
+      await createFarm("Farm", coordinates);
     };
 
     map.on("draw:created", onDrawCreated);

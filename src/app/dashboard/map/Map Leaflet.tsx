@@ -16,12 +16,20 @@ import "leaflet-draw";
 import DrawControl from "./Draw Control";
 import MapUpdater from "./Map Updater";
 import { getFarmsByFarmerId } from "@/app/actions/actions";
-import { supabase } from "@/superbase/client";
 
 interface Farm {
   id: number;
   name: string;
-  geometry: string;
+  geom: {
+    type: string;
+    crs: {
+      type: string;
+      properties: {
+        name: string;
+      };
+    };
+    coordinates: [[[number, number]]];
+  };
 }
 
 const MapLeaflet = ({
@@ -51,14 +59,10 @@ const MapLeaflet = ({
 
     // fetch farms
     const fetchFarms = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
       try {
         setLoading(true);
         setError(null);
-        const fetchedFarms = await getFarmsByFarmerId(user.id);
+        const fetchedFarms = await getFarmsByFarmerId();
         setFarms(fetchedFarms || []);
       } catch (err) {
         console.error("Error fetching farms:", err);
@@ -130,7 +134,7 @@ const MapLeaflet = ({
         {/* Render the fetched farms */}
         {farms.map((farm) => {
           try {
-            const geoJson = JSON.parse(farm.geometry);
+            const geoJson = farm.geom;
 
             if (
               geoJson.type === "Polygon" &&
