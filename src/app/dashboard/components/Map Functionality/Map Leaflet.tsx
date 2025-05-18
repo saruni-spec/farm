@@ -34,15 +34,12 @@ interface Farm {
 }
 
 const MapLeaflet = ({
-  drawFunction = () => Promise.resolve([]),
+  drawFunction = () => Promise.resolve(),
   lat = -1.286389,
   long = 36.817223,
   height = 350,
 }: {
-  drawFunction: (
-    farmName: string,
-    farmGeometry: Position[][]
-  ) => Promise<any[]>;
+  drawFunction: (farmName: string, farmGeometry: Position[][]) => Promise<void>;
   lat: number;
   long: number;
   height?: number;

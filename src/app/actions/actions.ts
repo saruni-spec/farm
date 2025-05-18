@@ -47,7 +47,6 @@ export async function createFarm(farmName: string, farmGeometry: Position[][]) {
     }
 
     console.log("Farm created successfully:", data);
-    return data;
   } catch (err) {
     console.error("An unexpected error occurred while creating farm:", err);
     throw new Error("An unexpected error occurred.");

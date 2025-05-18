@@ -13,7 +13,6 @@ import {
 import {
   Expand,
   Plus,
-  X,
   Leaf,
   Droplets,
   Wind,
@@ -120,8 +119,6 @@ const Map = ({
 
     setCurrentReportData(mockReportData);
     setIsReportDialogOpen(true);
-
-    return [];
   };
 
   return (
