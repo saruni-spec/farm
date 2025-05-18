@@ -6,11 +6,14 @@ import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { Position } from "geojson";
-import { createFarm } from "@/app/actions/actions";
 
-type drawings = "farm" | "segment";
-
-const DrawControl = ({ mode }: { mode: drawings }) => {
+const DrawControl = ({
+  drawFunction,
+  fetchFarms,
+}: {
+  drawFunction: (name: string, coordinates: Position[][]) => unknown;
+  fetchFarms: () => unknown;
+}) => {
   const map = useMap();
   const drawControlRef = useRef<L.Control.Draw | null>(null);
 
@@ -41,7 +44,6 @@ const DrawControl = ({ mode }: { mode: drawings }) => {
     map.addControl(drawControl);
 
     const onDrawCreated = async (e: L.LeafletEvent) => {
-      if (mode !== "farm") return;
       const event = e as L.DrawEvents.Created;
       const layer = event.layer as L.Polygon | L.Rectangle;
       drawnItems.addLayer(layer);
@@ -50,7 +52,9 @@ const DrawControl = ({ mode }: { mode: drawings }) => {
       console.log("Drawn shape:", geojson);
       const coordinates = geojson.geometry.coordinates as Position[][];
 
-      await createFarm("Farm", coordinates);
+      await drawFunction("Farm", coordinates);
+
+      await fetchFarms();
     };
 
     map.on("draw:created", onDrawCreated);
@@ -62,7 +66,7 @@ const DrawControl = ({ mode }: { mode: drawings }) => {
       map.removeLayer(drawnItems);
       map.off("draw:created", onDrawCreated);
     };
-  }, [map, mode]);
+  }, [map, drawFunction, fetchFarms]);
 
   return null;
 };

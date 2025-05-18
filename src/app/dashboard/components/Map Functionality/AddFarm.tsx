@@ -1,3 +1,4 @@
+import { createFarm } from "@/app/actions/actions";
 import dynamic from "next/dynamic";
 
 const MapLeaflet = dynamic(() => import("./Map Leaflet"), { ssr: false });
@@ -11,7 +12,12 @@ const AddFarm = ({
 }) => {
   return (
     <>
-      <MapLeaflet mode="farm" lat={lat} long={long} height={300} />
+      <MapLeaflet
+        drawFunction={createFarm}
+        lat={lat}
+        long={long}
+        height={300}
+      />
     </>
   );
 };
