@@ -16,6 +16,7 @@ import "leaflet-draw";
 import DrawControl from "./Draw Control";
 import MapUpdater from "./Map Updater";
 import { getFarmsByFarmerId } from "@/app/actions/actions";
+import { Position } from "geojson";
 
 interface Farm {
   id: number;
@@ -32,15 +33,13 @@ interface Farm {
   };
 }
 
-type drawings = "farm" | "segment";
-
 const MapLeaflet = ({
-  mode = "segment",
+  drawFunction = () => Promise.resolve(),
   lat = -1.286389,
   long = 36.817223,
   height = 350,
 }: {
-  mode: drawings;
+  drawFunction: (farmName: string, farmGeometry: Position[][]) => Promise<void>;
   lat: number;
   long: number;
   height?: number;
@@ -52,6 +51,21 @@ const MapLeaflet = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // fetch farms
+  const fetchFarms = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedFarms = await getFarmsByFarmerId();
+      setFarms(fetchedFarms || []);
+    } catch (err) {
+      console.error("Error fetching farms:", err);
+      setError("Failed to load farms.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
 
@@ -60,21 +74,6 @@ const MapLeaflet = ({
       iconUrl: "leaflet/dist/images/marker-icon.png",
       shadowUrl: "leaflet/dist/images/marker-shadow.png",
     });
-
-    // fetch farms
-    const fetchFarms = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const fetchedFarms = await getFarmsByFarmerId();
-        setFarms(fetchedFarms || []);
-      } catch (err) {
-        console.error("Error fetching farms:", err);
-        setError("Failed to load farms.");
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchFarms();
   }, []);
@@ -183,7 +182,7 @@ const MapLeaflet = ({
           }
         })}
 
-        <DrawControl mode={mode} />
+        <DrawControl drawFunction={drawFunction} fetchFarms={fetchFarms} />
       </MapContainer>
     </div>
   );
