@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState, useEffect } from "react";
 
@@ -55,8 +56,6 @@ const MapLayers = ({ setLat, setLong}: MapLayersProps) =>
     const [selectedCounty, setSelectedCounty] =useState("")
     const [selectedConstituency, setSelectedConstituency] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
-
-    console.assert(selectedWard)
 
     const overlayOptions = ["Crop Stress (NDVI)", "Soil Moisture", "Soil Carbon"]
 
