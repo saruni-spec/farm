@@ -64,9 +64,12 @@ const MapLeaflet = ({ lat = -1.286389, long = 36.817223, height = 350 }: { lat: 
 
         <DrawControl onDrawFinish={handleDrawFinish} />
 
-        {geoData && (
-          <GeoJSON data={geoData} style={{ color: "#00aaff", weight: 2 }} />
-        )}
+        {/* {
+          geoData && 
+          (
+            <GeoJSON data={geoData} style={{ color: "#00aaff", weight: 2 }} />
+          )
+        } */}
       </MapContainer>
 
       {
