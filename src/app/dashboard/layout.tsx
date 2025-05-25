@@ -23,31 +23,31 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     },
   ];
 
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //     const {
-  //       data: { session },
-  //     } = await supabase.auth.getSession();
-  //     if (!session) {
-  //       router.push("/account/login");
-  //     }
-  //   };
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/account/login");
+      }
+    };
 
-  //   checkSession();
+    checkSession();
 
-  //   // Useful if the user logs out from another tab or the session expires
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange((_event, session) => {
-  //     if (!session) {
-  //       router.push("/account/login");
-  //     }
-  //   });
+    // Useful if the user logs out from another tab or the session expires
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.push("/account/login");
+      }
+    });
 
-  //   return () => {
-  //     subscription.unsubscribe();
-  //   };
-  // }, [router]);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router]);
   return (
     <div className="min-h-screen bg-gray-200 relative">
       <Navbar logo={<Leaf className="w-6 h-6" />} title="FarmSawa Dashboard" tagline="Real-time crop and soil analytics" navLinks={dashboardLinks}/>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
 import { useEffect, useRef } from "react"
@@ -6,7 +7,7 @@ import L from "leaflet"
 import "leaflet-draw"
 import "leaflet-draw/dist/leaflet.draw.css"
 
-const DrawControl = () => 
+const DrawControl = ({ onDrawFinish }: { onDrawFinish: (bbox: number[]) => void }) => 
 {
     const map = useMap()
     const drawControlRef = useRef<L.Control.Draw | null>(null)
@@ -68,26 +69,7 @@ const DrawControl = () =>
           console.log("Sending bounding box:", bbox);
 
           // Send to backend
-          const segmentationURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-          fetch(`${segmentationURL}/segment`, 
-          {
-            method: "POST",
-            headers: 
-            {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ bbox }),
-          })
-          .then((res) => res.json())
-          .then((data) => 
-          {
-            console.log("Backend response:", data);
-          })
-          .catch((err) => 
-          {
-            console.error("Failed to send bbox:", err);
-          });
+          onDrawFinish([minLng, minLat, maxLng, maxLat])
         };
 
         // Handle edits to existing shapes
