@@ -1,74 +1,115 @@
-"use client";
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 
-import { useEffect, useRef } from "react";
-import { useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet-draw";
-import "leaflet-draw/dist/leaflet.draw.css";
-import { Position } from "geojson";
+import { useEffect, useRef } from "react"
+import { useMap } from "react-leaflet"
+import L from "leaflet"
+import "leaflet-draw"
+import "leaflet-draw/dist/leaflet.draw.css"
+import type { FeatureCollection } from "geojson"
 
-const DrawControl = ({
-  drawFunction,
-  fetchFarms,
-}: {
-  drawFunction: (name: string, coordinates: Position[][]) => unknown;
-  fetchFarms: () => unknown;
-}) => {
-  const map = useMap();
-  const drawControlRef = useRef<L.Control.Draw | null>(null);
+const DrawControl = ({ onDrawFinish }: { onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void })  => 
+{
+    const map = useMap()
+    const drawControlRef = useRef<L.Control.Draw | null>(null)
 
-  useEffect(() => {
-    const drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
+    useEffect(() => 
+    {
+        const drawnItems = new L.FeatureGroup()
+        map.addLayer(drawnItems)
 
-    // Remove existing draw control if any
-    if (drawControlRef.current) {
-      map.removeControl(drawControlRef.current);
-    }
+        // Remove existing draw control if any
+        if (drawControlRef.current) 
+        {
+            map.removeControl(drawControlRef.current)
+        }
 
-    const drawControl = new L.Control.Draw({
-      edit: {
-        featureGroup: drawnItems,
-      },
-      draw: {
-        polyline: false,
-        rectangle: {},
-        polygon: {},
-        circle: false,
-        marker: false,
-        circlemarker: false,
-      },
-    });
+        const drawControl = new L.Control.Draw({
+        edit: 
+        {
+            featureGroup: drawnItems,
+        },
+        draw: 
+        {
+            polyline: false,
+            rectangle: {}, // empty object means enabled with default options
+            polygon: {},
+            circle: false,
+            marker: false,
+            circlemarker: false,
+        },
+        })
 
-    drawControlRef.current = drawControl;
-    map.addControl(drawControl);
+        drawControlRef.current = drawControl
+        map.addControl(drawControl)
 
-    const onDrawCreated = async (e: L.LeafletEvent) => {
-      const event = e as L.DrawEvents.Created;
-      const layer = event.layer as L.Polygon | L.Rectangle;
-      drawnItems.addLayer(layer);
+        // Handle newlyt created shapes
+        const onDrawCreated = (e: L.LeafletEvent) => 
+        {
+            const event = e as L.DrawEvents.Created
+            const layer = event.layer as L.Polygon | L.Rectangle
+            drawnItems.addLayer(layer)
+            const geoJsonFeature = layer.toGeoJSON()
 
-      const geojson = layer.toGeoJSON();
-      console.log("Drawn shape:", geojson);
-      const coordinates = geojson.geometry.coordinates as Position[][];
+            // Wrap the single feature into a FeatureCollection
+            const geoJsonFeatureCollection: FeatureCollection = 
+            {
+                type: "FeatureCollection",
+                features: [geoJsonFeature]
+            }
 
-      await drawFunction("Farm", coordinates);
+            // Extract coordinates from GeoJSON
+            const coords = geoJsonFeature.geometry.coordinates[0] as [number, number][]
 
-      await fetchFarms();
-    };
+            // Initialize min/max bounds
+            let minLng = coords[0][0]
+            let minLat = coords[0][1]
+            let maxLng = coords[0][0]
+            let maxLat = coords[0][1]
 
-    map.on("draw:created", onDrawCreated);
+            coords.forEach(([lng, lat]) => 
+            {
+                if (lng < minLng) minLng = lng
+                if (lng > maxLng) maxLng = lng
+                if (lat < minLat) minLat = lat
+                if (lat > maxLat) maxLat = lat
+            })
 
-    return () => {
-      if (drawControlRef.current) {
-        map.removeControl(drawControlRef.current);
-      }
-      map.removeLayer(drawnItems);
-      map.off("draw:created", onDrawCreated);
-    };
-  }, [map, drawFunction, fetchFarms]);
+            const bbox = [minLng, minLat, maxLng, maxLat]
+            console.log("Sending bounding box:", bbox)
 
-  return null;
-};
+            // Call the callback with bbox and wrapped FeatureCollection
+            onDrawFinish(bbox, geoJsonFeatureCollection)
+        }
 
-export default DrawControl;
+        // Handle edits to existing shapes
+        const onDrawEdited = (e: L.LeafletEvent) => 
+        {
+            const event = e as L.DrawEvents.Edited
+            event.layers.eachLayer((layer: L.Layer) => 
+            {
+                if (layer instanceof L.Polygon || layer instanceof L.Rectangle) 
+                {
+                    console.log("Edited shape:", layer.toGeoJSON())
+                }
+            })
+        }
+
+        map.on("draw:created", onDrawCreated)
+        map.on("draw:edited", onDrawEdited)
+
+        return () => 
+        {
+            if (drawControlRef.current) 
+            {
+                map.removeControl(drawControlRef.current)
+            }
+            map.removeLayer(drawnItems)
+            map.off("draw:created", onDrawCreated)
+        }
+    }, [map])
+
+    return null
+}
+
+export default DrawControl

@@ -50,13 +50,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
   return (
     <div className="min-h-screen bg-gray-200 relative">
-      <Navbar
-        logo={<Leaf className="w-6 h-6" />}
-        title="FarmSawa Dashboard"
-        tagline="Real-time crop and soil analytics"
-        navLinks={dashboardLinks}
-      />
-      <div className="min-h-screen">{children}</div>
+      <Navbar logo={<Leaf className="w-6 h-6" />} title="FarmSawa Dashboard" tagline="Real-time crop and soil analytics" navLinks={dashboardLinks}/>
+      <div className="min-h-screen">
+        {children}
+      </div>
     </div>
   );
 };

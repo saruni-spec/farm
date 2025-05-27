@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState, useEffect } from "react";
 
@@ -39,10 +40,11 @@ interface Ward {
 interface MapLayersProps {
   setLat: (lat: number) => void;
   setLong: (lon: number) => void;
+  segmenting: boolean;
 }
 
 
-const MapLayers = ({ setLat, setLong}: MapLayersProps) => 
+const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) => 
 {
     const [allCounties, setAllCounties] = useState<County[]>([]); 
     const [allConstituencies, setAllConstituencies] = useState<Constituency[]>([]);
@@ -55,8 +57,6 @@ const MapLayers = ({ setLat, setLong}: MapLayersProps) =>
     const [selectedCounty, setSelectedCounty] =useState("")
     const [selectedConstituency, setSelectedConstituency] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
-
-    console.assert(selectedWard)
 
     const overlayOptions = ["Crop Stress (NDVI)", "Soil Moisture", "Soil Carbon"]
 
@@ -155,7 +155,7 @@ const MapLayers = ({ setLat, setLong}: MapLayersProps) =>
 
             {/* Location selectors */}
             <div className={dropdownClasses}>
-                <select name='county' className={selectClasses} onChange={handleCountyChange}>
+                <select name='county' className={selectClasses} disabled={segmenting} onChange={handleCountyChange}>
                     <option value={""}>Select County</option>
                     {
                         loadingCounties
@@ -174,7 +174,7 @@ const MapLayers = ({ setLat, setLong}: MapLayersProps) =>
                 </select>
             </div>
             <div className={dropdownClasses}>
-                <select name='constituency' className={selectClasses} onChange={handleConstituencyChange} disabled={!selectedCounty}>
+                <select name='constituency' className={selectClasses} onChange={handleConstituencyChange} disabled={!selectedCounty || segmenting}>
                     <option value={""}>Select Constituency</option>
                     {
                         loadingConstituencies
@@ -191,7 +191,7 @@ const MapLayers = ({ setLat, setLong}: MapLayersProps) =>
                 </select>
             </div>
             <div className={dropdownClasses}>
-                <select name='ward' className={selectClasses} onChange={handleWardChange} disabled={!selectedConstituency}>
+                <select name='ward' className={selectClasses} onChange={handleWardChange} disabled={!selectedConstituency || segmenting}>
                     <option value={""}>Select Ward</option>
                     {
                         loadingWards
@@ -236,7 +236,7 @@ const MapLayers = ({ setLat, setLong}: MapLayersProps) =>
             </div>
 
             {/* Update Button */}
-            <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 mt-2">
+            <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 mt-2 disabled:cursor-not-allowed disabled:bg-blue-300" disabled={segmenting}>
                 <RefreshCcw size={18}/>
                 Update Map
             </button>
