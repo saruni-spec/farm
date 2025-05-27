@@ -6,8 +6,9 @@ import { useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet-draw"
 import "leaflet-draw/dist/leaflet.draw.css"
+import type { FeatureCollection } from "geojson"
 
-const DrawControl = ({ onDrawFinish }: { onDrawFinish: (bbox: number[]) => void }) => 
+const DrawControl = ({ onDrawFinish }: { onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void })  => 
 {
     const map = useMap()
     const drawControlRef = useRef<L.Control.Draw | null>(null)
@@ -45,45 +46,54 @@ const DrawControl = ({ onDrawFinish }: { onDrawFinish: (bbox: number[]) => void 
         // Handle newlyt created shapes
         const onDrawCreated = (e: L.LeafletEvent) => 
         {
-          const event = e as L.DrawEvents.Created;
-          const layer = event.layer as L.Polygon | L.Rectangle;
-          const geoJson = layer.toGeoJSON();
+            const event = e as L.DrawEvents.Created
+            const layer = event.layer as L.Polygon | L.Rectangle
+            drawnItems.addLayer(layer)
+            const geoJsonFeature = layer.toGeoJSON()
 
-          // Extract coordinates from GeoJSON
-          const coords = geoJson.geometry.coordinates[0]; // Assuming a single polygon
+            // Wrap the single feature into a FeatureCollection
+            const geoJsonFeatureCollection: FeatureCollection = 
+            {
+                type: "FeatureCollection",
+                features: [geoJsonFeature]
+            }
 
-          // Initialize min/max bounds
-          let minLng = coords[0][0];
-          let minLat = coords[0][1];
-          let maxLng = coords[0][0];
-          let maxLat = coords[0][1];
+            // Extract coordinates from GeoJSON
+            const coords = geoJsonFeature.geometry.coordinates[0] as [number, number][]
 
-          coords.forEach(([lng, lat]) => {
-            if (lng < minLng) minLng = lng;
-            if (lng > maxLng) maxLng = lng;
-            if (lat < minLat) minLat = lat;
-            if (lat > maxLat) maxLat = lat;
-          });
+            // Initialize min/max bounds
+            let minLng = coords[0][0]
+            let minLat = coords[0][1]
+            let maxLng = coords[0][0]
+            let maxLat = coords[0][1]
 
-          const bbox = [minLng, minLat, maxLng, maxLat];
-          console.log("Sending bounding box:", bbox);
+            coords.forEach(([lng, lat]) => 
+            {
+                if (lng < minLng) minLng = lng
+                if (lng > maxLng) maxLng = lng
+                if (lat < minLat) minLat = lat
+                if (lat > maxLat) maxLat = lat
+            })
 
-          // Send to backend
-          onDrawFinish([minLng, minLat, maxLng, maxLat])
-        };
+            const bbox = [minLng, minLat, maxLng, maxLat]
+            console.log("Sending bounding box:", bbox)
+
+            // Call the callback with bbox and wrapped FeatureCollection
+            onDrawFinish(bbox, geoJsonFeatureCollection)
+        }
 
         // Handle edits to existing shapes
         const onDrawEdited = (e: L.LeafletEvent) => 
         {
-            const event = e as L.DrawEvents.Edited;
+            const event = e as L.DrawEvents.Edited
             event.layers.eachLayer((layer: L.Layer) => 
             {
                 if (layer instanceof L.Polygon || layer instanceof L.Rectangle) 
                 {
-                    console.log("Edited shape:", layer.toGeoJSON());
+                    console.log("Edited shape:", layer.toGeoJSON())
                 }
-            });
-        };
+            })
+        }
 
         map.on("draw:created", onDrawCreated)
         map.on("draw:edited", onDrawEdited)
