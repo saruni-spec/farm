@@ -4,6 +4,11 @@ import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-draw/dist/leaflet.draw.css'
 
+//Geoman styles
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+import '@geoman-io/leaflet-geoman-free';
+
+
 import DrawControl from './Draw Control'
 import MapUpdater from './Map Updater'
 import GeoJsonDisplay from './GeoJsonDisplay'
@@ -29,7 +34,7 @@ const MapLeaflet = ({lat = -1.286389, long = 36.817223, height = 350, geoData, e
 
   return (
     <div style={{ height: `${height}px`, width: '100%' }} className="relative z-0">
-      <MapContainer center={position} zoom={13} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+      <MapContainer center={position} zoom={16} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
         <MapUpdater lat={lat} long={long} />
 
         <LayersControl position="topright">
