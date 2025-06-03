@@ -1,30 +1,104 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react' // Optional: spinning icon
 import type { FeatureCollection } from "geojson"
 import { supabase } from '@/superbase/client'
 import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
 
 const MapLeaflet = dynamic(() => import('./Map Functionality/Map Leaflet'), { ssr: false })
 
 const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setIsSegmenting, saving, setSaving }: { lat: number; long: number; height?: number, segmenting: boolean, setIsSegmenting: (arg0: boolean) => void , saving: boolean, setSaving: (arg0: boolean) => void }) => 
 {
     const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
-
+    const router = useRouter()
     const [geoData, setGeoData] = useState<FeatureCollection | undefined>(undefined)
     const [bbox, setBbox] = useState<number[] | null>(null)
 
     const [farmNameModal, setFarmNameModal] = useState<boolean>(false)
     const [farmName, setFarmName] = useState<string | null>(null)
 
+    const [farms, setFarms] = useState<any[]>([])
+    const [selectedFarm, setSelectedFarm] = useState<any>(null)
+
+    const getFarmerID = async () =>
+    {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) throw error
+
+        // Getting the ID of the farmer
+        const farmer_id = data?.session?.user.id
+
+        return farmer_id
+    }
+
     const onDrawFinish = (bbox: number[], geoJson: FeatureCollection) => 
     {
         setBbox(bbox)
         setGeoData(geoJson)
     }
+
+    //Fetching the farmer's farms
+    const getFarms = async () =>
+    {
+        try
+        {
+            //Getting the farmer ID
+            const farmerID = await getFarmerID()
+
+            //If not authenticated, redirect to login
+            if(!farmerID)
+            {
+                toast.error("User not authenticated",
+                    {
+                        onClose: () => router.push("/account/login")
+                    }
+                )
+            }
+
+            //Sending the GET request to the backend
+            const { data: farms, error } = await supabase.from("farm").select("*").eq("farmer_id", farmerID)
+
+            if (error) throw error
+
+            setFarms(farms)
+        }
+        catch (err) 
+        {
+            console.error("Error fetching farms:", err)
+            toast.error("Failed to fetch farms")
+        }
+
+    }
+
+    useEffect(()=> 
+    {
+        getFarms()
+    },[])
+
+    useEffect(() => 
+    {
+        if (selectedFarm?.geom) 
+        {
+            const featureCollection: FeatureCollection = 
+            {
+                type: "FeatureCollection",
+                features: [
+                    {
+                        type: "Feature",
+                        geometry: selectedFarm.geom,
+                        properties: {}
+                    }
+                ]
+            }
+
+            setGeoData(featureCollection)
+        }
+    }, [selectedFarm])
 
     const segmentFarm = () => 
     {
@@ -71,11 +145,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
 
         try 
         {
-            const { data, error } = await supabase.auth.getSession()
-            if (error) throw error
-
-            // Getting the ID of the farmer
-            const farmer_id = data?.session?.user.id
+            const farmer_id = await getFarmerID()
             if (!farmer_id) 
             {
                 toast.error("User not authenticated, please login.")
@@ -135,6 +205,34 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
 
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-800">Field Map</h2>
+                <select className="w-fit border border-gray-300 rounded px-2 py-1 text-gray-700 disabled:cursor-not-allowed disabled:bg-gray-100" value={selectedFarm?.id || ""} onChange={e =>
+                    {
+                        const selected = farms.find(farm => farm.id === e.target.value)
+                        setSelectedFarm(selected)
+                    }
+                } disabled={farms.length === 0}>
+                    {
+                        farms.length === 0
+                        ?
+                            <option>No farms to display</option>
+                        :
+                            <>
+                                <option value={""}>Select farm</option>
+                                {
+                                    farms.map(farm =>
+                                    {
+                                        return(
+                                            <option key={farm.id} value={farm.id}>
+                                                {
+                                                    farm.name || `Farm ${farm.id}`
+                                                }
+                                            </option>
+                                        )
+                                    })
+                                }
+                            </>
+                    }
+                </select>
                 <div className='flex flex-row gap-4'>
                     <Button variant={"landingGreen"} onClick={()=> setFarmNameModal(true)} disabled={!bbox}>Save farm</Button>
                     <Button variant={"save"} onClick={() => segmentFarm()} disabled={segmenting || !bbox}>
