@@ -7,7 +7,7 @@ import { RefreshCcw } from "lucide-react";
 
 import { counties, constituencies} from "kenya";
 
-// Define the types for county, constituency, and ward
+// Define the types for county, sub-county, and ward
 interface County {
     name: string;
     code: string;
@@ -18,7 +18,7 @@ interface County {
     constituencies: { name: string; code: string; }[]; 
 }
 
-interface Constituency {
+interface SubCounty {
     name: string;
     code: string;
     center: {
@@ -51,7 +51,7 @@ interface MapLayersProps {
 const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelectedFarm}: MapLayersProps) => 
 {
     const [allCounties, setAllCounties] = useState<County[]>([]); 
-    const [allConstituencies, setAllConstituencies] = useState<Constituency[]>([]);
+    const [allConstituencies, setAllConstituencies] = useState<SubCounty[]>([]);
     const [allWards, setAllWards] = useState<Ward[]>([]);
 
     const [loadingCounties, setLoadingCounties] = useState(false);
@@ -59,7 +59,7 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
     const [loadingWards, setLoadingWards] = useState(false);
 
     const [selectedCounty, setSelectedCounty] =useState("")
-    const [selectedConstituency, setSelectedConstituency] = useState("")
+    const [selectedSubCounty, setSelectedSubCounty] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
 
     const overlayOptions = ["Crop Stress (NDVI)", "Soil Moisture", "Soil Carbon"]
@@ -85,7 +85,7 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
     {
         const code = e.target.value;
         setSelectedCounty(code);
-        setSelectedConstituency("");
+        setSelectedSubCounty("");
         setSelectedWard("");
         setAllWards([]);
 
@@ -108,23 +108,23 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
         }
     };
 
-    const handleConstituencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => 
+    const handleSubCountyChange = (e: React.ChangeEvent<HTMLSelectElement>) => 
     {
         const code = e.target.value;
-        setSelectedConstituency(code);
+        setSelectedSubCounty(code);
         setSelectedWard("");
         setLoadingWards(true);
 
-        const constituency = allConstituencies.find((c) => c.code === code);
-        if (constituency?.center) 
+        const SubCounty = allConstituencies.find((c) => c.code === code);
+        if (SubCounty?.center) 
         {
-            setLat(constituency.center.lat);
-            setLong(constituency.center.lon);
+            setLat(SubCounty.center.lat);
+            setLong(SubCounty.center.lon);
         }
 
-        if (constituency?.wards) 
+        if (SubCounty?.wards) 
         {
-            setAllWards(constituency.wards);
+            setAllWards(SubCounty.wards);
             setLoadingWards(false);
         }
         else 
@@ -178,24 +178,24 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
                 </select>
             </div>
             <div className={dropdownClasses}>
-                <select name='constituency' className={selectClasses} onChange={handleConstituencyChange} disabled={!selectedCounty || segmenting}>
-                    <option value={""}>Select Constituency</option>
+                <select name='SubCounty' className={selectClasses} onChange={handleSubCountyChange} disabled={!selectedCounty || segmenting}>
+                    <option value={""}>Select Sub-County</option>
                     {
                         loadingConstituencies
                         ?
                             <option>Loading...</option>
                         :
-                            allConstituencies.map(constituency =>
+                            allConstituencies.map(SubCounty =>
                             {
                                 return(
-                                    <option key={constituency.code} value={constituency.code}>{constituency.name.charAt(0)+ constituency.name.slice(1).toLowerCase()}</option>
+                                    <option key={SubCounty.code} value={SubCounty.code}>{SubCounty.name.charAt(0)+ SubCounty.name.slice(1).toLowerCase()}</option>
                                 )
                             })
                     }
                 </select>
             </div>
             <div className={dropdownClasses}>
-                <select name='ward' className={selectClasses} onChange={handleWardChange} disabled={!selectedConstituency || segmenting}>
+                <select name='ward' className={selectClasses} onChange={handleWardChange} disabled={!selectedSubCounty || segmenting}>
                     <option value={""}>Select Ward</option>
                     {
                         loadingWards
