@@ -61,10 +61,19 @@ const Layout = ({ children }: { children: React.ReactNode }) =>
     router.push("/account/login")
   }
 
+  //Function to handle closing the dropdown once the user clicks outside of if
+  const closeProfileDropdown = () =>
+  {
+    if(dropdownOpen)
+    {
+      setDropdownOpen(false)
+    }
+  }
+
   //Adding the profile name
   const rightContent = (
     <div className="relative group">
-      <button onClick={toggleDropdown} className="text-gray-700 font-medium group-hover:text-green-700">{username}</button>
+      <button onClick={toggleDropdown} className="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center font-semibold uppercase group-hover:bg-green-700 transition">{username?.charAt(0)}</button>
       {
         dropdownOpen &&
           <div className="absolute right-0 mt-2 bg-white border shadow-md rounded-md py-2 w-40 z-50">
@@ -77,7 +86,7 @@ const Layout = ({ children }: { children: React.ReactNode }) =>
     </div>
   )
   return (
-    <div className="min-h-screen bg-gray-200 relative">
+    <div className="min-h-screen bg-gray-200 relative" onClick={closeProfileDropdown}>
       <Navbar logo={<Leaf className="w-6 h-6" />} title="FarmSawa Dashboard" tagline="Real-time crop and soil analytics" navLinks={dashboardLinks} rightContent={rightContent}/>
       <div className="min-h-screen">
         {children}
