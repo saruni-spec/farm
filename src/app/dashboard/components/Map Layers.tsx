@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState, useEffect } from "react";
@@ -6,7 +7,7 @@ import { RefreshCcw } from "lucide-react";
 
 import { counties, constituencies} from "kenya";
 
-// Define the types for county, constituency, and ward
+// Define the types for county, sub-county, and ward
 interface County {
     name: string;
     code: string;
@@ -17,7 +18,7 @@ interface County {
     constituencies: { name: string; code: string; }[]; 
 }
 
-interface Constituency {
+interface SubCounty {
     name: string;
     code: string;
     center: {
@@ -41,13 +42,16 @@ interface MapLayersProps {
   setLat: (lat: number) => void;
   setLong: (lon: number) => void;
   segmenting: boolean;
+  farms: any[];
+  selectedFarm: any;
+  setSelectedFarm: (farm: any) => void;
 }
 
 
-const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) => 
+const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelectedFarm}: MapLayersProps) => 
 {
     const [allCounties, setAllCounties] = useState<County[]>([]); 
-    const [allConstituencies, setAllConstituencies] = useState<Constituency[]>([]);
+    const [allConstituencies, setAllConstituencies] = useState<SubCounty[]>([]);
     const [allWards, setAllWards] = useState<Ward[]>([]);
 
     const [loadingCounties, setLoadingCounties] = useState(false);
@@ -55,7 +59,7 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
     const [loadingWards, setLoadingWards] = useState(false);
 
     const [selectedCounty, setSelectedCounty] =useState("")
-    const [selectedConstituency, setSelectedConstituency] = useState("")
+    const [selectedSubCounty, setSelectedSubCounty] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
 
     const overlayOptions = ["Crop Stress (NDVI)", "Soil Moisture", "Soil Carbon"]
@@ -81,7 +85,7 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
     {
         const code = e.target.value;
         setSelectedCounty(code);
-        setSelectedConstituency("");
+        setSelectedSubCounty("");
         setSelectedWard("");
         setAllWards([]);
 
@@ -104,23 +108,23 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
         }
     };
 
-    const handleConstituencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => 
+    const handleSubCountyChange = (e: React.ChangeEvent<HTMLSelectElement>) => 
     {
         const code = e.target.value;
-        setSelectedConstituency(code);
+        setSelectedSubCounty(code);
         setSelectedWard("");
         setLoadingWards(true);
 
-        const constituency = allConstituencies.find((c) => c.code === code);
-        if (constituency?.center) 
+        const SubCounty = allConstituencies.find((c) => c.code === code);
+        if (SubCounty?.center) 
         {
-            setLat(constituency.center.lat);
-            setLong(constituency.center.lon);
+            setLat(SubCounty.center.lat);
+            setLong(SubCounty.center.lon);
         }
 
-        if (constituency?.wards) 
+        if (SubCounty?.wards) 
         {
-            setAllWards(constituency.wards);
+            setAllWards(SubCounty.wards);
             setLoadingWards(false);
         }
         else 
@@ -150,7 +154,7 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
 
 
     return (
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+        <div className="bg-white rounded-lg shadow p-6 space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Map Layers</h2>
 
             {/* Location selectors */}
@@ -174,24 +178,24 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
                 </select>
             </div>
             <div className={dropdownClasses}>
-                <select name='constituency' className={selectClasses} onChange={handleConstituencyChange} disabled={!selectedCounty || segmenting}>
-                    <option value={""}>Select Constituency</option>
+                <select name='SubCounty' className={selectClasses} onChange={handleSubCountyChange} disabled={!selectedCounty || segmenting}>
+                    <option value={""}>Select Sub-County</option>
                     {
                         loadingConstituencies
                         ?
                             <option>Loading...</option>
                         :
-                            allConstituencies.map(constituency =>
+                            allConstituencies.map(SubCounty =>
                             {
                                 return(
-                                    <option key={constituency.code} value={constituency.code}>{constituency.name.charAt(0)+ constituency.name.slice(1).toLowerCase()}</option>
+                                    <option key={SubCounty.code} value={SubCounty.code}>{SubCounty.name.charAt(0)+ SubCounty.name.slice(1).toLowerCase()}</option>
                                 )
                             })
                     }
                 </select>
             </div>
             <div className={dropdownClasses}>
-                <select name='ward' className={selectClasses} onChange={handleWardChange} disabled={!selectedConstituency || segmenting}>
+                <select name='ward' className={selectClasses} onChange={handleWardChange} disabled={!selectedSubCounty || segmenting}>
                     <option value={""}>Select Ward</option>
                     {
                         loadingWards
@@ -208,22 +212,36 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
                 </select>
             </div>
 
-            {/* Overlays */}
-            <div>
-                <label className="block text-sm font-medium mb-2">Overlay</label>
-                <div className="space-y-2">
-                {
-                    overlayOptions.map(layer => 
+            {/* Farms dropdown */}
+            <div className={dropdownClasses}>
+                <select className={selectClasses} value={selectedFarm?.id || ""} onChange={e =>
                     {
-                        return(
-                            <div key={layer} className="flex items-center">
-                                <input type="radio" name="overlay" value={layer.toLowerCase().replace(/ /g, "-")} className="h-4 w-4 text-blue-600 border-gray-300"/>
-                                <label className="ml-2 text-sm text-gray-700">{layer}</label>
-                            </div>
-                        )
-                    })
-                }
-                </div>
+                        const selected = farms.find(farm => farm.id === e.target.value)
+                        setSelectedFarm(selected)
+                    }
+                } disabled={farms.length === 0}>
+                    {
+                        farms.length === 0
+                        ?
+                            <option>No farms to display</option>
+                        :
+                            <>
+                                <option value={""}>Select farm</option>
+                                {
+                                    farms.map(farm =>
+                                    {
+                                        return(
+                                            <option key={farm.id} value={farm.id}>
+                                                {
+                                                    farm.name || `Farm ${farm.id}`
+                                                }
+                                            </option>
+                                        )
+                                    })
+                                }
+                            </>
+                    }
+                </select>
             </div>
 
             {/* Date Range */}

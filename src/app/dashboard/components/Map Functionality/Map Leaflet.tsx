@@ -14,7 +14,7 @@ import MapUpdater from './Map Updater'
 import GeoJsonDisplay from './GeoJsonDisplay'
 import type { FeatureCollection } from "geojson"
 
-const MapLeaflet = ({lat = -1.286389, long = 36.817223, height = 350, geoData, error, onDrawFinish} : { lat: number; long: number; height?: number; geoData?: FeatureCollection; error?: string | null; onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void;  }) => 
+const MapLeaflet = ({lat = -1.286389, long = 36.817223, height = 350, geoData, onDrawFinish} : { lat: number; long: number; height?: number; geoData?: FeatureCollection; onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void;  }) => 
 {
   const position: [number, number] = [lat, long]
   const [mounted, setMounted] = useState(false)
@@ -52,11 +52,6 @@ const MapLeaflet = ({lat = -1.286389, long = 36.817223, height = 350, geoData, e
           geoData && <GeoJsonDisplay geoData={geoData}/>
         }
       </MapContainer>
-
-      {
-        error && 
-        <p className="absolute top-2 right-2 bg-red-500 text-white px-4 py-2 rounded">{error}</p>
-      }
     </div>
   )
 }
