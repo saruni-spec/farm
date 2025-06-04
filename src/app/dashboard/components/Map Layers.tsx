@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState, useEffect } from "react";
@@ -41,10 +42,13 @@ interface MapLayersProps {
   setLat: (lat: number) => void;
   setLong: (lon: number) => void;
   segmenting: boolean;
+  farms: any[];
+  selectedFarm: any;
+  setSelectedFarm: (farm: any) => void;
 }
 
 
-const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) => 
+const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelectedFarm}: MapLayersProps) => 
 {
     const [allCounties, setAllCounties] = useState<County[]>([]); 
     const [allConstituencies, setAllConstituencies] = useState<Constituency[]>([]);
@@ -150,7 +154,7 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
 
 
     return (
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+        <div className="bg-white rounded-lg shadow p-6 space-y-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Map Layers</h2>
 
             {/* Location selectors */}
@@ -208,22 +212,36 @@ const MapLayers = ({ setLat, setLong, segmenting}: MapLayersProps) =>
                 </select>
             </div>
 
-            {/* Overlays */}
-            <div>
-                <label className="block text-sm font-medium mb-2">Overlay</label>
-                <div className="space-y-2">
-                {
-                    overlayOptions.map(layer => 
+            {/* Farms dropdown */}
+            <div className={dropdownClasses}>
+                <select className={selectClasses} value={selectedFarm?.id || ""} onChange={e =>
                     {
-                        return(
-                            <div key={layer} className="flex items-center">
-                                <input type="radio" name="overlay" value={layer.toLowerCase().replace(/ /g, "-")} className="h-4 w-4 text-blue-600 border-gray-300"/>
-                                <label className="ml-2 text-sm text-gray-700">{layer}</label>
-                            </div>
-                        )
-                    })
-                }
-                </div>
+                        const selected = farms.find(farm => farm.id === e.target.value)
+                        setSelectedFarm(selected)
+                    }
+                } disabled={farms.length === 0}>
+                    {
+                        farms.length === 0
+                        ?
+                            <option>No farms to display</option>
+                        :
+                            <>
+                                <option value={""}>Select farm</option>
+                                {
+                                    farms.map(farm =>
+                                    {
+                                        return(
+                                            <option key={farm.id} value={farm.id}>
+                                                {
+                                                    farm.name || `Farm ${farm.id}`
+                                                }
+                                            </option>
+                                        )
+                                    })
+                                }
+                            </>
+                    }
+                </select>
             </div>
 
             {/* Date Range */}

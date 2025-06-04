@@ -1,7 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
+import { supabase } from '@/superbase/client'
+import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
 import AnalysisCards from "./components/Analysis Cards";
 import ManagementZones from "./components/Management Zones";
 import Map from "./components/Map";
@@ -17,15 +21,69 @@ const Dashboard = () =>
     const [segmenting, setIsSegmenting] = useState(false)
     const [saving, setSaving] = useState(false)
 
+    const [farms, setFarms] = useState<any[]>([])
+    const [selectedFarm, setSelectedFarm] = useState<any>(null)
+
+    const router = useRouter()
+
+    const getFarmerID = async () =>
+    {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) throw error
+
+        // Getting the ID of the farmer
+        const farmer_id = data?.session?.user.id
+
+        return farmer_id
+    }
+
+    //Fetching the farmer's farms
+    const getFarms = async () =>
+    {
+        try
+        {
+            //Getting the farmer ID
+            const farmerID = await getFarmerID()
+
+            //If not authenticated, redirect to login
+            if(!farmerID)
+            {
+                toast.error("User not authenticated",
+                    {
+                        onClose: () => router.push("/account/login")
+                    }
+                )
+            }
+
+            //Sending the GET request to the backend
+            const { data: farms, error } = await supabase.from("farm").select("*").eq("farmer_id", farmerID)
+
+            if (error) throw error
+
+            setFarms(farms)
+        }
+        catch (err) 
+        {
+            console.error("Error fetching farms:", err)
+            toast.error("Failed to fetch farms")
+        }
+
+    }
+
+    useEffect(()=> 
+    {
+        getFarms()
+    },[])
+
     return ( 
         <div className="py-22 px-3 text-black">
             <AnalysisCards/>
             <div className="flex flex-col lg:flex-row gap-3 mt-3">
                 <div className="lg:w-2/3">
-                    <Map lat={lat} long={long} segmenting={segmenting} setIsSegmenting={setIsSegmenting} saving={saving} setSaving={setSaving}/>
+                    <Map lat={lat} long={long} segmenting={segmenting} setIsSegmenting={setIsSegmenting} saving={saving} setSaving={setSaving} selectedFarm={selectedFarm}/>
                 </div>
                 <div className="lg:w-1/3 space-y-4">
-                    <MapLayers setLat={setLat} setLong={setLong} segmenting={segmenting} />
+                    <MapLayers setLat={setLat} setLong={setLong} segmenting={segmenting} farms={farms} selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm}/>
                     <ManagementZones/>
                 </div>
             </div>
