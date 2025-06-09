@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 
 const MapLeaflet = dynamic(() => import('./Map Functionality/Map Leaflet'), { ssr: false })
 
-const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setIsSegmenting, saving, setSaving, selectedFarm }: { lat: number; long: number; height?: number, segmenting: boolean, setIsSegmenting: (arg0: boolean) => void , saving: boolean, setSaving: (arg0: boolean) => void; selectedFarm: any; }) => 
+const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setIsSegmenting, saving, setSaving, selectedFarm, getFarms }: { lat: number; long: number; height?: number, segmenting: boolean, setIsSegmenting: (arg0: boolean) => void , saving: boolean, setSaving: (arg0: boolean) => void; selectedFarm: any; getFarms: () => void; }) => 
 {
     const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
     const router = useRouter()
@@ -19,7 +19,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
     const [bbox, setBbox] = useState<number[] | null>(null)
 
     const [farmNameModal, setFarmNameModal] = useState<boolean>(false)
-    const [farmName, setFarmName] = useState<string | null>(null)
+    const [farmName, setFarmName] = useState<string>("")
 
     const getFarmerID = async () =>
     {
@@ -40,7 +40,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
 
     useEffect(() => 
     {
-        if(!selectedFarm || !selectedFarm.geom)
+        if(!selectedFarm || !selectedFarm.geometry)
         {
             setGeoData(undefined)
             return
@@ -52,7 +52,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
             features: [
                 {
                     type: "Feature",
-                    geometry: selectedFarm.geom,
+                    geometry: selectedFarm?.geometry,
                     properties: {}
                 }
             ]
@@ -105,6 +105,12 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
             return
         }
 
+         if (!farmName || farmName.trim() === "") 
+        {
+            toast.error("Please enter a farm name");
+            return;
+        }
+
         try 
         {
             const farmer_id = await getFarmerID()
@@ -119,7 +125,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
 
             setSaving(true)
 
-            const response = await fetch(`${backendURL}/api/farm`, 
+            const response = await fetch(`${backendURL}/api/farms`, 
             {
                 method: "POST",
                 headers: 
@@ -130,7 +136,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
                 {
                     farmer_id: farmer_id,
                     geometry: geoData?.features[0].geometry,
-                    farmName: farmName
+                    name: farmName
                 })
             })
 
@@ -142,7 +148,11 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
 
             const result = await response.json()
             console.log(result)
-            toast.success(result.message)
+            toast.success(result.message,
+                {
+                    onClose: () => getFarms()
+                }
+            )
         } 
         catch (err: any) 
         {
@@ -230,7 +240,12 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-800">Field Map</h2>
                 <div className='flex flex-row gap-4'>
-                    <Button variant={"landingGreen"} onClick={()=> setFarmNameModal(true)} disabled={!bbox}>Save farm</Button>
+                    <Button variant={"landingGreen"} onClick={()=> 
+                        {
+                            setFarmName("")
+                            setFarmNameModal(true)
+                        }
+                    } disabled={!bbox}>Save farm</Button>
                     <Button variant={"save"} onClick={()=> saveSelectedArea()} disabled={segmenting || !bbox}>
                         {
                             saving
@@ -268,7 +283,7 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
                             setFarmNameModal(false)
                         }} className="bg-white rounded-lg shadow-lg p-6 w-80 relative"  onClick={(e) => e.stopPropagation()}>
                             <label className="block mb-2 text-gray-700 font-semibold">Farm Name</label>
-                            <input type="text" name="farmName" onChange={e => setFarmName(e.target.value)} placeholder='Enter farm name' required className="mb-4 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-green-400" />
+                            <input type="text" name="farmName" value={farmName} onChange={e => setFarmName(e.target.value)} placeholder='Enter farm name' required className="mb-4 p-2 border border-gray-300 rounded w-full focus:outline-none focus:ring-2 focus:ring-green-400" />
                             <div className="flex justify-end gap-4">
                                 <Button variant={"save"} type="submit" disabled={saving}>
                                     {
@@ -287,7 +302,6 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
                     </div>
                 )
             }
-
 
             <MapLeaflet lat={lat} long={long} height={height} geoData={geoData} onDrawFinish={onDrawFinish}/>
         </div>
