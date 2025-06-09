@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // components/MiniMap.tsx
+"use client"
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet"
 
 const MiniMap = ({ farm }: { farm: any }) => 
@@ -7,7 +8,6 @@ const MiniMap = ({ farm }: { farm: any }) =>
   const centerLat = farm?.geometry?.coordinates[0][0][1]
   const centerLng = farm?.geometry?.coordinates[0][0][0]
 
-  console.log(farm?.geometry)
   return (
     <MapContainer style={{ height: "200px", width: "100%" }} center={[centerLat, centerLng]} zoom={35} scrollWheelZoom={true}>
       <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>

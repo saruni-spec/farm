@@ -2,13 +2,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState, useEffect } from "react";
+import dynamic from 'next/dynamic'
 
 import { RefreshCcw } from "lucide-react";
 import {toast} from "react-toastify"
 import { counties, constituencies} from "kenya";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2"
-import MiniMap from "@/components/MiniMap";
+
+const MiniMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
 
 // Define the types for county, sub-county, and ward
 interface County {
