@@ -157,6 +157,65 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
         }
     }
 
+    //Saving the selected area without segmenting
+    const saveSelectedArea = async () => 
+    {
+        if (!bbox) 
+        {
+            toast.error("Please draw a field area first");
+            return;
+        }
+
+        try 
+        {
+            const farmer_id = await getFarmerID();
+            if (!farmer_id) 
+            {
+                toast.error("User not authenticated", 
+                {
+                    onClose: () => router.push("/account/login")
+                });
+                return;
+            }
+
+            setSaving(true)
+
+            const response = await fetch(`${backendURL}/api/selected_area`, 
+            {
+                method: "POST",
+                headers: 
+                {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(
+                {
+                    farmer_id: farmer_id,
+                    geometry: geoData?.features[0].geometry
+                })
+            })
+
+            if (!response.ok) 
+            {
+                const errorMessage = await response.json()
+                throw new Error(`Failed to save selected area: ${errorMessage.error}`)
+            }
+
+            const result = await response.json()
+            console.log(result)
+            toast.success(result.message || "Selected area saved successfully")
+        } 
+        catch (err: any) 
+        {
+            toast.error(err.message || "Failed to save selected area. Try again later")
+        } 
+        finally 
+        {
+            setSaving(false)
+            setGeoData(undefined)
+            setBbox(null)
+        }
+    }
+
     return (
         <div className="bg-white rounded-lg shadow p-6 relative min-h-[500px]">
             {
@@ -173,6 +232,18 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
                 <h2 className="text-xl font-semibold text-gray-800">Field Map</h2>
                 <div className='flex flex-row gap-4'>
                     <Button variant={"landingGreen"} onClick={()=> setFarmNameModal(true)} disabled={!bbox}>Save farm</Button>
+                    <Button variant={"save"} onClick={()=> saveSelectedArea()} disabled={segmenting || !bbox}>
+                        {
+                            saving
+                            ?
+                                <>
+                                    <Loader2 className='w-4 h-4 mr-2 animate-spin'/>
+                                    Saving...
+                                </>
+                            :
+                                "Save selected area"
+                        }
+                    </Button>
                     <Button variant={"save"} onClick={() => segmentFarm()} disabled={segmenting || !bbox}>
                         {
                             segmenting 
