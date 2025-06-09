@@ -13,6 +13,8 @@ import MapLayers from "./components/Map Layers";
 
 const Dashboard = () => 
 {
+    const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
+
     //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
     const [lat, setLat] = useState<number>(-1.286389);
     const [long, setLong] = useState<number>(36.817223)
@@ -56,11 +58,20 @@ const Dashboard = () =>
             }
 
             //Sending the GET request to the backend
-            const { data: farms, error } = await supabase.from("farm").select("*").eq("farmer_id", farmerID)
+            const response = await fetch(`${backendURL}/api/farms?farmer_id=${farmerID}`, 
+            {
+                method: "GET"
+            })
 
-            if (error) throw error
+            if (!response.ok) 
+            {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to fetch farms");
+            }
 
-            setFarms(farms)
+            const result = await response.json()
+
+            setFarms(result.features)
         }
         catch (err) 
         {
@@ -80,7 +91,7 @@ const Dashboard = () =>
             <AnalysisCards/>
             <div className="flex flex-col lg:flex-row gap-3 mt-3">
                 <div className="lg:w-2/3">
-                    <Map lat={lat} long={long} segmenting={segmenting} setIsSegmenting={setIsSegmenting} saving={saving} setSaving={setSaving} selectedFarm={selectedFarm}/>
+                    <Map lat={lat} long={long} segmenting={segmenting} setIsSegmenting={setIsSegmenting} saving={saving} setSaving={setSaving} selectedFarm={selectedFarm} getFarms={getFarms}/>
                 </div>
                 <div className="lg:w-1/3 space-y-4">
                     <MapLayers setLat={setLat} setLong={setLong} segmenting={segmenting} farms={farms} selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm}/>

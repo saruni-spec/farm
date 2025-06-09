@@ -2,10 +2,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { useState, useEffect } from "react";
+import dynamic from 'next/dynamic'
 
 import { RefreshCcw } from "lucide-react";
-
+import {toast} from "react-toastify"
 import { counties, constituencies} from "kenya";
+import { Button } from "@/components/ui/button";
+import Swal from "sweetalert2"
+
+const MiniMap = dynamic(() => import('@/components/MiniMap'), { ssr: false })
 
 // Define the types for county, sub-county, and ward
 interface County {
@@ -50,6 +55,8 @@ interface MapLayersProps {
 
 const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelectedFarm}: MapLayersProps) => 
 {
+    const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
+
     const [allCounties, setAllCounties] = useState<County[]>([]); 
     const [allConstituencies, setAllConstituencies] = useState<SubCounty[]>([]);
     const [allWards, setAllWards] = useState<Ward[]>([]);
@@ -61,6 +68,74 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
     const [selectedCounty, setSelectedCounty] =useState("")
     const [selectedSubCounty, setSelectedSubCounty] = useState("")
     const [selectedWard, setSelectedWard] = useState("")
+
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editedFarmName, setEditedFarmName] = useState("");
+
+    useEffect(() => 
+    {
+        if (selectedFarm) setEditedFarmName(selectedFarm.name || "");
+    }, [selectedFarm]);
+
+    const handleUpdateFarm = async () => 
+    {
+        try 
+        {
+            const response = await fetch(`${backendURL}/api/farms/${selectedFarm.id}`, {
+            method: "PUT",
+            headers: 
+            { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name: editedFarmName }),
+            });
+
+            if (!response.ok) throw new Error("Failed to update farm");
+            const result = await response.json()
+            toast.success(result.message || "Farm updated successfully!");
+            setIsEditModalOpen(false);
+        } 
+        catch (error) 
+        {
+            toast.error("Update failed.");
+        }
+    };
+
+    const handleDeleteFarm = async () => 
+    {
+        const result = await Swal.fire(
+        {
+            title: `Delete Farm ${selectedFarm.name}?`,
+            text: "This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#aaa",
+            confirmButtonText: "Yes, delete it!",
+        })
+
+        if(result.isConfirmed && selectedFarm)
+        {
+            try 
+            {
+                const response = await fetch(`${backendURL}/api/farms/${selectedFarm.id}`, 
+                {
+                    method: "DELETE",
+                })
+
+                if (!response.ok) throw new Error("Failed to delete farm")
+                
+                const result = await response.json()
+                toast.success(result.message || "Farm deleted successfully!");
+                setSelectedFarm(null);
+            } 
+            catch (error) 
+            {
+                toast.error("Delete failed.");
+            }
+        }
+    };
+
 
     const overlayOptions = ["Crop Stress (NDVI)", "Soil Moisture", "Soil Carbon"]
 
@@ -243,6 +318,12 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
                     }
                 </select>
             </div>
+            {/* Edit and Delete Buttons */}
+            <div className="flex justify-between gap-2">
+            <Button disabled={!selectedFarm} variant={"edit"} onClick={()=> setIsEditModalOpen(true)}>Edit Farm</Button>
+            <Button disabled={!selectedFarm} variant={"delete"} onClick={()=> handleDeleteFarm()}>Delete Farm</Button>
+            </div>
+
 
             {/* Date Range */}
             <div>
@@ -258,6 +339,30 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
                 <RefreshCcw size={18}/>
                 Update Map
             </button>
+
+            {
+                isEditModalOpen && selectedFarm && 
+                (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                            {/* MiniMap component goes here */}
+                            <div className="mb-4">
+                                <MiniMap farm={selectedFarm} />
+                            </div>
+
+                            <h2 className="text-xl font-semibold mb-4">Edit Farm</h2>
+                            <label className="block text-sm mb-2 font-medium">Farm Name</label>
+                            <input type="text" className="w-full border border-gray-300 rounded px-3 py-2 mb-4" value={editedFarmName} onChange={(e) => setEditedFarmName(e.target.value)}/>
+
+                            <div className="flex justify-end gap-2">
+                                <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+                                <button onClick={handleUpdateFarm} className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+            	)
+            }
+
         </div>
     );
 };

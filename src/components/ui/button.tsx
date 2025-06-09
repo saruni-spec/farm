@@ -24,6 +24,8 @@ const buttonVariants = cva(
         primaryAction: "bg-[#1976D2] text-white hover:bg-[#1565C0]",
         landing: "bg-white text-green-600 text-md hover:underline",
         save: "bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 rounded-md py-2 px-4 shadow-md",
+        delete: "flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed",
+        edit:"flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed",
 
         // New variants
         slate:
