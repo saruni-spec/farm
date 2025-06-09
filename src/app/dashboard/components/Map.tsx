@@ -201,7 +201,6 @@ const Map = ({ lat = -1.286389, long = 36.817223, height = 500, segmenting, setI
             }
 
             const result = await response.json()
-            console.log(result)
             toast.success(result.message || "Selected area saved successfully")
         } 
         catch (err: any) 
