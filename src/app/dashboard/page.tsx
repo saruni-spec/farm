@@ -13,6 +13,8 @@ import MapLayers from "./components/Map Layers";
 
 const Dashboard = () => 
 {
+    const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
+
     //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
     const [lat, setLat] = useState<number>(-1.286389);
     const [long, setLong] = useState<number>(36.817223)
@@ -56,11 +58,20 @@ const Dashboard = () =>
             }
 
             //Sending the GET request to the backend
-            const { data: farms, error } = await supabase.from("farm").select("*").eq("farmer_id", farmerID)
+            const response = await fetch(`${backendURL}/api/farms?farmer_id=${farmerID}`, 
+            {
+                method: "GET"
+            })
 
-            if (error) throw error
+            if (!response.ok) 
+            {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to fetch farms");
+            }
 
-            setFarms(farms)
+            const result = await response.json()
+
+            setFarms(result.features)
         }
         catch (err) 
         {
