@@ -29,25 +29,22 @@ const stakeholders = [
 // }
 // ]
 
-const Stakeholders = () => {
+const Stakeholders = () => 
+{
   return (
-    <section id="stakeholders" className="py-20 bg-gray-100">
+    <section id="stakeholders" className="py-4 px-6 md:px-10 bg-white-100 text-gray-800">
       <div className="max-w-7xl mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-10">
-          Built for Every Stakeholder
-        </h2>
-        <div className="grid gap-10 md:grid-cols-3 mb-10">
-          {stakeholders.map((stakeholder) => (
-            <div
-              key={stakeholder.role}
-              className="bg-gray-50 p-8 rounded-lg shadow-md text-left"
-            >
-              <h3 className="text-xl font-semibold text-green-700 mb-4">
-                {stakeholder.role}
-              </h3>
-              <p className="text-gray-600">{stakeholder.description}</p>
-            </div>
-          ))}
+        <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-5">Built for Every Stakeholder</h2>
+        <div className="grid gap-4 md:grid-cols-3 mb-10">
+          {
+            stakeholders.map(stakeholder => 
+            (
+              <div key={stakeholder.role} className="bg-gray-50 p-8 rounded-lg shadow-md text-left">
+                <h3 className="text-xl font-semibold text-green-700 mb-4">{stakeholder.role}</h3>
+                <p className="text-gray-600">{stakeholder.description}</p>
+              </div>
+            ))
+          }
         </div>
         {/* <h2 className="text-3xl md:text-4xl font-bold text-green-800 mt-16 mb-8">Testimonials</h2>
         <div className="grid gap-10 md:grid-cols-3">

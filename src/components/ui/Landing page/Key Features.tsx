@@ -1,4 +1,5 @@
-const KeyFeatures = () => {
+const KeyFeatures = () => 
+{
   const features = [
     {
       title: "Crop Health Tracking",
@@ -25,30 +26,26 @@ const KeyFeatures = () => {
       description:
         "Soil organic carbon estimation and fertilizer recommendations for optimal soil health.",
     },
-    // {
-    // title: "Mobile Access",
-    // description: "Get insights via mobile app or WhatsApp integration—no complex logins required.",
-    // },
+    {
+      title: "Mobile Access",
+      description: "Get insights via mobile app or WhatsApp integration—no complex logins required.",
+    },
   ];
 
   return (
-    <section id="features" className="py-20 text-gray-800">
+    <section id="features" className="py-4 px-6 md:px-10 bg-gray-100 text-gray-800">
       <div className="max-w-7xl mx-auto px-6 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-10">
-          Key Farm Management Features
-        </h2>
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="bg-white p-8 rounded-lg shadow-md text-left"
-            >
-              <h3 className="text-xl font-semibold text-green-700 mb-4">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </div>
-          ))}
+        <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-5">Key Farm Management Features</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {
+            features.map(feature => 
+            (
+              <div key={feature.title} className="bg-white p-8 rounded-lg shadow-md text-left">
+                <h3 className="text-xl font-semibold text-green-700 mb-4">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </div>
+            ))
+          }
         </div>
       </div>
     </section>
