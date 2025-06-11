@@ -1,4 +1,5 @@
-const Problem = () => {
+const Problem = () => 
+{
   const pageDetails = [
     {
       title: "Unpredictable Weather",
@@ -19,28 +20,24 @@ const Problem = () => {
   ];
 
   return (
-    <section
-      id="problem"
-      className="py-20 px-6 md:px-12 bg-gray-100 text-gray-800"
-    >
+    <section id="problem" className="py-4 px-6 md:px-12 bg-gray-100 text-gray-800">
       <div className="max-w-6xl mx-auto text-center space-y-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-green-700">
-          Challenges Facing Tea Farmers Today
-        </h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-green-700">Challenges Facing Tea Farmers Today</h2>
         <p className="text-lg text-gray-600">
           Despite being a major source of income in many rural areas, tea
           farming continues to face significant challenges that reduce
           productivity and profitability.
         </p>
-        <div className="grid gap-10 md:grid-cols-2 text-left mt-8">
-          {pageDetails.map((detail) => (
-            <div key={detail.title} className="p-5">
-              <h3 className="font-semibold text-xl text-green-700 mb-3">
-                {detail.title}
-              </h3>
-              <p className="text-gray-600">{detail.text}</p>
-            </div>
-          ))}
+        <div className="grid gap-4 md:grid-cols-2 text-left">
+          {
+            pageDetails.map(detail => 
+            (
+              <div key={detail.title} className="bg-white p-6 rounded-lg shadow-md text-left">
+                <h3 className="font-semibold text-xl text-green-700 mb-3">{detail.title}</h3>
+                <p className="text-gray-600">{detail.text}</p>
+              </div>
+            ))
+          }
         </div>
       </div>
     </section>
