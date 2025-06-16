@@ -163,6 +163,7 @@ const MapLayers = ({ setLat, setLong, segmenting, farms, selectedFarm, setSelect
         setSelectedSubCounty("");
         setSelectedWard("");
         setAllWards([]);
+        setSelectedFarm("")
 
         const county = allCounties.find((c) => c.code === code);
         if (county?.center) 
