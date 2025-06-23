@@ -1,14 +1,5 @@
 import { getAllFarmers } from "@/app/actions/actions";
 
-type FarmerWithProfile = {
-  profile_id: string;
-  profile: {
-    first_name: string;
-    last_name: string;
-    created_at: string;
-  };
-};
-
 const UsersPage = async () => {
   const data = await getAllFarmers();
 

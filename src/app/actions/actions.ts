@@ -1,15 +1,16 @@
 "use server";
-
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { Position } from "geojson";
 import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 /**
  * Creates a new farm for the authenticated user.
  */
 export async function createFarm(farmName: string, farmGeometry: Position[][]) {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
     error: authError,
@@ -58,7 +59,6 @@ export async function createFarm(farmName: string, farmGeometry: Position[][]) {
  * Fetches all farms for the authenticated user.
  */
 export async function getFarmsByFarmerId() {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
     error: authError,
@@ -101,7 +101,6 @@ export async function getFarmsByFarmerId() {
  * Fetches all farms.
  */
 export async function getAllFarms() {
-  const supabase = createServerComponentClient({ cookies });
   try {
     const { data, error } = await supabase.from("farm").select("*");
 
@@ -125,7 +124,6 @@ export async function getAllFarms() {
  * Deletes a farm by ID.
  */
 export async function deleteFarm(farmId: string) {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
     error: authError,
@@ -176,7 +174,6 @@ export async function deleteFarm(farmId: string) {
  * Gets the current farmer ID.
  */
 export async function getCurrentFarmerId() {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -187,10 +184,6 @@ export async function getCurrentFarmerId() {
 }
 
 export async function getAllFarmers() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
   try {
     const { data, error } = await supabase
       .from("farmer")
@@ -208,10 +201,6 @@ export async function getAllFarmers() {
 }
 
 export async function getProfile(id: string) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
   try {
     const { data, error } = await supabase
       .from("profile")
