@@ -3,6 +3,7 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { Position } from "geojson";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * Creates a new farm for the authenticated user.
@@ -183,4 +184,48 @@ export async function getCurrentFarmerId() {
     return user.id;
   }
   return null;
+}
+
+export async function getAllFarmers() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  try {
+    const { data, error } = await supabase
+      .from("farmer")
+      .select("profile_id,profile(first_name,last_name,created_at)");
+    if (error) {
+      console.error("Error fetching farmers:", error);
+      throw new Error(`Failed to fetch farmers: ${error.message}`);
+    }
+    console.log("Farmers:", data);
+    return data;
+  } catch (err) {
+    console.error("An unexpected error occurred while fetching farmers:", err);
+    throw new Error("An unexpected error occurred.");
+  }
+}
+
+export async function getProfile(id: string) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  try {
+    const { data, error } = await supabase
+      .from("profile")
+      .select("farmer(profile_id),admin(profile_id)")
+      .eq("id", id)
+      .limit(1);
+    if (error) {
+      console.error("Error fetching profile:", error);
+      throw new Error(`Failed to fetch profile: ${error.message}`);
+    }
+    console.log("Profile:", data);
+    return data;
+  } catch (err) {
+    console.error("An unexpected error occurred while fetching profile:", err);
+    throw new Error("An unexpected error occurred.");
+  }
 }
