@@ -14,6 +14,8 @@ import MapLayers from "./components/Map Layers";
 const Dashboard = () => 
 {
     const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
+console.log("This is a test console log")
+console.log(backendURL)
 
     //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
     const [lat, setLat] = useState<number>(-1.286389);
