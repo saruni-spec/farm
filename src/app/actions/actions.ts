@@ -1,14 +1,16 @@
 "use server";
-
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { Position } from "geojson";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 /**
  * Creates a new farm for the authenticated user.
  */
 export async function createFarm(farmName: string, farmGeometry: Position[][]) {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
     error: authError,
@@ -57,7 +59,6 @@ export async function createFarm(farmName: string, farmGeometry: Position[][]) {
  * Fetches all farms for the authenticated user.
  */
 export async function getFarmsByFarmerId() {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
     error: authError,
@@ -100,7 +101,6 @@ export async function getFarmsByFarmerId() {
  * Fetches all farms.
  */
 export async function getAllFarms() {
-  const supabase = createServerComponentClient({ cookies });
   try {
     const { data, error } = await supabase.from("farm").select("*");
 
@@ -124,7 +124,6 @@ export async function getAllFarms() {
  * Deletes a farm by ID.
  */
 export async function deleteFarm(farmId: string) {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
     error: authError,
@@ -175,7 +174,6 @@ export async function deleteFarm(farmId: string) {
  * Gets the current farmer ID.
  */
 export async function getCurrentFarmerId() {
-  const supabase = createServerComponentClient({ cookies });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -183,4 +181,40 @@ export async function getCurrentFarmerId() {
     return user.id;
   }
   return null;
+}
+
+export async function getAllFarmers() {
+  try {
+    const { data, error } = await supabase
+      .from("farmer")
+      .select("profile_id,profile(first_name,last_name,created_at)");
+    if (error) {
+      console.error("Error fetching farmers:", error);
+      throw new Error(`Failed to fetch farmers: ${error.message}`);
+    }
+    console.log("Farmers:", data);
+    return data;
+  } catch (err) {
+    console.error("An unexpected error occurred while fetching farmers:", err);
+    throw new Error("An unexpected error occurred.");
+  }
+}
+
+export async function getProfile(id: string) {
+  try {
+    const { data, error } = await supabase
+      .from("profile")
+      .select("farmer(profile_id),admin(profile_id)")
+      .eq("id", id)
+      .limit(1);
+    if (error) {
+      console.error("Error fetching profile:", error);
+      throw new Error(`Failed to fetch profile: ${error.message}`);
+    }
+    console.log("Profile:", data);
+    return data;
+  } catch (err) {
+    console.error("An unexpected error occurred while fetching profile:", err);
+    throw new Error("An unexpected error occurred.");
+  }
 }
