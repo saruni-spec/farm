@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import * as L from "leaflet";

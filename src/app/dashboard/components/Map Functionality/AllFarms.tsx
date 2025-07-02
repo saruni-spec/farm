@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { GeoJSON } from "react-leaflet";
 import type { FeatureCollection, Feature, Geometry } from "geojson";
 

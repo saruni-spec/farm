@@ -47,8 +47,7 @@ export async function createFarm(farmName: string, farmGeometry: Position[][]) {
       console.error("Error creating farm:", error);
       throw new Error(`Failed to create farm: ${error.message}`);
     }
-
-    console.log("Farm created successfully:", data);
+    return data;
   } catch (err) {
     console.error("An unexpected error occurred while creating farm:", err);
     throw new Error("An unexpected error occurred.");
@@ -84,7 +83,6 @@ export async function getFarmsByFarmerId() {
       throw new Error(`Failed to fetch farms: ${error.message}`);
     }
 
-    console.log(`Farms for farmer ${user.id}:`);
     return data;
   } catch (err) {
     console.error(
@@ -109,7 +107,6 @@ export async function getAllFarms() {
       throw new Error(`Failed to fetch all farms: ${error.message}`);
     }
 
-    console.log("All farms:", data);
     return data;
   } catch (err) {
     console.error(
@@ -159,7 +156,6 @@ export async function deleteFarm(farmId: string) {
       throw new Error(`Failed to delete farm: ${error.message}`);
     }
 
-    console.log(`Farm ${farmId} deleted successfully by user ${user.id}.`);
     return true;
   } catch (err: unknown) {
     console.error(
@@ -192,7 +188,7 @@ export async function getAllFarmers() {
       console.error("Error fetching farmers:", error);
       throw new Error(`Failed to fetch farmers: ${error.message}`);
     }
-    console.log("Farmers:", data);
+
     return data;
   } catch (err) {
     console.error("An unexpected error occurred while fetching farmers:", err);
@@ -211,7 +207,7 @@ export async function getProfile(id: string) {
       console.error("Error fetching profile:", error);
       throw new Error(`Failed to fetch profile: ${error.message}`);
     }
-    console.log("Profile:", data);
+
     return data;
   } catch (err) {
     console.error("An unexpected error occurred while fetching profile:", err);
