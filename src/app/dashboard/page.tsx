@@ -11,8 +11,10 @@ import ManagementZones from "./components/Management Zones";
 import Map from "./components/Map";
 import MapLayers from "./components/Map Layers";
 
+
 const Dashboard = () => {
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 
   //Position coordinates to be updated when the locations are selected. Defaulting it to Nairobi county
   const [lat, setLat] = useState<number>(-1.286389);
@@ -94,6 +96,7 @@ const Dashboard = () => {
             setSelectedFarm={setSelectedFarm}
           />
         </div>
+
         <div className="lg:w-1/3 space-y-4">
           <MapLayers
             setLat={setLat}
@@ -109,5 +112,6 @@ const Dashboard = () => {
     </div>
   );
 };
+
 
 export default Dashboard;
