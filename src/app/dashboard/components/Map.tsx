@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
-import { Loader2 } from "lucide-react"; // Optional: spinning icon
+import { Loader2, BarChart3, Map as MapIcon } from "lucide-react";
 import type { FeatureCollection } from "geojson";
 import { supabase } from "@/superbase/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { LegendData } from "./Map Functionality/Analysis";
+import AnalysisLegend from "./Map Functionality/AnalysisLegend";
 
 const MapLeaflet = dynamic(() => import("./Map Functionality/Map Leaflet"), {
   ssr: false,
@@ -23,6 +25,8 @@ const Map = ({
   setSaving,
   selectedFarm,
   getFarms,
+  farms = [],
+  setSelectedFarm,
 }: {
   lat: number;
   long: number;
@@ -33,24 +37,31 @@ const Map = ({
   setSaving: (arg0: boolean) => void;
   selectedFarm: any;
   getFarms: () => void;
+  farms?: any[];
+  setSelectedFarm?: (farm: any) => void;
 }) => {
+  console.log("farms1", farms);
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
   const [geoData, setGeoData] = useState<FeatureCollection | undefined>(
     undefined
   );
   const [bbox, setBbox] = useState<number[] | null>(null);
-
   const [farmNameModal, setFarmNameModal] = useState<boolean>(false);
   const [farmName, setFarmName] = useState<string>("");
+
+  // New state for displaying all farms
+  const [showAllFarms, setShowAllFarms] = useState<boolean>(false);
+
+  // New state for crop stress analysis
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [analysisLegend, setAnalysisLegend] = useState<LegendData[]>([]);
+  const [showLegend, setShowLegend] = useState<boolean>(false);
 
   const getFarmerID = async () => {
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
-
-    // Getting the ID of the farmer
     const farmer_id = data?.session?.user.id;
-
     return farmer_id;
   };
 
@@ -60,6 +71,7 @@ const Map = ({
   };
 
   useEffect(() => {
+    console.log("selectedFarm", farms);
     if (!selectedFarm || !selectedFarm.geometry) {
       setGeoData(undefined);
       return;
@@ -79,6 +91,42 @@ const Map = ({
     setGeoData(featureCollection);
   }, [selectedFarm]);
 
+  // Toggle display all farms
+  const toggleShowAllFarms = () => {
+    setShowAllFarms(!showAllFarms);
+    if (!showAllFarms) {
+      // When showing all farms, clear current geoData and bbox
+      setGeoData(undefined);
+      setBbox(null);
+    }
+  };
+
+  // New function to handle crop stress analysis
+  const runCropStressAnalysis = async () => {
+    if (!selectedFarm || !selectedFarm.geometry) {
+      toast.error("Please select a farm first");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setShowLegend(false);
+    setAnalysisLegend([]);
+  };
+
+  const onAnalysisComplete = (legendData: LegendData[]) => {
+    setAnalysisLegend(legendData);
+    setShowLegend(true);
+    setIsAnalyzing(false);
+    toast.success("Crop stress analysis completed successfully");
+  };
+
+  const onAnalysisError = (error: string) => {
+    setIsAnalyzing(false);
+    setShowLegend(false);
+    setAnalysisLegend([]);
+    toast.error(`Analysis failed: ${error}`);
+  };
+
   const segmentFarm = async () => {
     if (!bbox) {
       toast.error("Please draw a field area first");
@@ -88,7 +136,6 @@ const Map = ({
     setIsSegmenting(true);
 
     const farmer_id = await getFarmerID();
-
     const selected_area = await saveSelectedArea();
     const selected_area_id = selected_area?.selected_area_id;
 
@@ -176,7 +223,6 @@ const Map = ({
     }
   };
 
-  //Saving the selected area without segmenting
   const saveSelectedArea = async () => {
     if (!bbox) {
       toast.error("Please draw a field area first");
@@ -231,11 +277,13 @@ const Map = ({
 
   return (
     <div className="bg-white rounded-lg shadow p-6 relative min-h-[500px]">
-      {segmenting && (
+      {(segmenting || isAnalyzing) && (
         <div className="absolute inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center rounded-lg">
           <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
           <span className="text-sm text-gray-700">
-            Segmenting field area...
+            {segmenting
+              ? "Segmenting field area..."
+              : "Running crop stress analysis..."}
           </span>
         </div>
       )}
@@ -243,13 +291,23 @@ const Map = ({
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-800">Field Map</h2>
         <div className="flex flex-row gap-4">
+          {/* Display All Farms Button */}
+          <Button
+            variant={showAllFarms ? "destructive" : "outline"}
+            onClick={toggleShowAllFarms}
+            disabled={segmenting || isAnalyzing}
+          >
+            <MapIcon className="w-4 h-4 mr-2" />
+            {showAllFarms ? "Hide All Farms" : "Show All Farms"}
+          </Button>
+
           <Button
             variant={"landingGreen"}
             onClick={() => {
               setFarmName("");
               setFarmNameModal(true);
             }}
-            disabled={!bbox}
+            disabled={!bbox || showAllFarms}
           >
             Save farm
           </Button>
@@ -257,7 +315,7 @@ const Map = ({
           <Button
             variant={"save"}
             onClick={() => segmentFarm()}
-            disabled={segmenting || !bbox}
+            disabled={segmenting || !bbox || showAllFarms}
           >
             {segmenting ? (
               <>
@@ -265,6 +323,24 @@ const Map = ({
               </>
             ) : (
               "Segment farm"
+            )}
+          </Button>
+
+          {/* Crop Stress Analysis Button */}
+          <Button
+            variant={"destructive"}
+            onClick={runCropStressAnalysis}
+            disabled={isAnalyzing || !selectedFarm || showAllFarms}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing...
+              </>
+            ) : (
+              <>
+                <BarChart3 className="w-4 h-4 mr-2" /> Run Analysis
+              </>
             )}
           </Button>
         </div>
@@ -326,7 +402,17 @@ const Map = ({
         height={height}
         geoData={geoData}
         onDrawFinish={onDrawFinish}
+        selectedFarm={selectedFarm}
+        isAnalyzing={isAnalyzing}
+        onAnalysisComplete={onAnalysisComplete}
+        onAnalysisError={onAnalysisError}
+        farms={farms}
+        showAllFarms={showAllFarms}
+        setSelectedFarm={setSelectedFarm}
       />
+
+      {/* Analysis Legend */}
+      <AnalysisLegend legendData={analysisLegend} isVisible={showLegend} />
     </div>
   );
 };
