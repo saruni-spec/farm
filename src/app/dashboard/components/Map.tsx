@@ -6,7 +6,6 @@ import { Loader2, BarChart3, Map as MapIcon } from "lucide-react";
 import { supabase } from "@/superbase/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import AnalysisLegend from "./Map Functionality/AnalysisLegend";
 import useDashboardStore from "@/stores/useDashboardStore";
 
 const MapLeaflet = dynamic(() => import("./Map Functionality/Map Leaflet"), {
@@ -333,7 +332,6 @@ const Map = () => {
       )}
 
       <MapLeaflet />
-      <AnalysisLegend />
     </div>
   );
 };
