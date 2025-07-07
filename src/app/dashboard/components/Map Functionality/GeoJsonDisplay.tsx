@@ -1,58 +1,57 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useMap } from 'react-leaflet'
-import L from 'leaflet'
-import type { FeatureCollection } from 'geojson'
+import { useEffect } from "react";
+import { useMap } from "react-leaflet";
+import L from "leaflet";
+import { feature } from "@/types/geometry";
+import useDashboardStore from "@/stores/useDashboardStore";
 
-const GeoJsonDisplay = ({ geoData }: { geoData: FeatureCollection }) => 
-{
-    const map = useMap()
+const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) => {
+  const map = useMap();
+  const { setSelectedFarm } = useDashboardStore();
 
-    useEffect(() => 
-    {
-        if (!map || !geoData) return
+  useEffect(() => {
+    if (!map || !geoData) return;
+    if (geoData.length === 0) return;
 
-        // Defensive: safely create pane
-        let pane = map.getPane('segmentsPane')
-        if (!pane) 
-        {
-            map.createPane('segmentsPane')
-            pane = map.getPane('segmentsPane')
-        }
+    // Defensive: safely create pane
+    let pane = map.getPane("segmentsPane");
+    if (!pane) {
+      map.createPane("segmentsPane");
+      pane = map.getPane("segmentsPane");
+    }
 
-        if (pane) pane.style.zIndex = '450'
+    if (pane) pane.style.zIndex = "450";
 
-        const layers: L.Layer[] = []
+    const layers: L.Layer[] = [];
 
-        geoData.features.forEach(feature => 
-        {
-            const layer = L.geoJSON(feature, 
-            {
-                pane: 'segmentsPane',
-                style: 
-                {
-                    color: '#FFA500',
-                    weight: 2,
-                    fillColor: '#FFA500',
-                    fillOpacity: 0.4,
-                },
-            }).addTo(map)
-            layers.push(layer)
-        })
+    geoData.forEach((feature) => {
+      onclick = () => {
+        setSelectedFarm(feature);
+      };
+      feature["type"] = "Feature";
+      const layer = L.geoJSON(feature, {
+        pane: "segmentsPane",
+        style: {
+          color: "#FFA500",
+          weight: 2,
+          fillColor: "#FFA500",
+          fillOpacity: 0.4,
+        },
+      }).addTo(map);
+      layers.push(layer);
+    });
 
-        const group = L.featureGroup(layers)
-        map.fitBounds(group.getBounds(), 
-        {
-            animate: false,
-            padding: [10, 10],
-        })
+    const group = L.featureGroup(layers);
+    map.fitBounds(group.getBounds(), {
+      animate: false,
+      padding: [10, 10],
+    });
 
-        return () => layers.forEach(layer => map.removeLayer(layer))
+    return () => layers.forEach((layer) => map.removeLayer(layer));
+  }, [geoData, map]);
 
-    }, [geoData, map])
+  return null;
+};
 
-    return null
-}
-
-export default GeoJsonDisplay
+export default GeoJsonDisplay;

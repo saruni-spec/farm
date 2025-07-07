@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react"; // Import useRef
 import { useMap } from "react-leaflet";
 import * as L from "leaflet";
-
+import { feature } from "@/types/geometry";
 declare global {
   interface Window {
     parseGeoraster: any;
@@ -12,7 +12,7 @@ declare global {
 }
 
 interface CropStressAnalysisProps {
-  selectedFarm: any;
+  selectedFarm: feature;
   isAnalyzing: boolean;
   onAnalysisComplete: (legendData: LegendData[]) => void;
   onAnalysisError: (error: string) => void;
@@ -31,9 +31,8 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
   onAnalysisError,
 }) => {
   const map = useMap();
-  const [layerControl, setLayerControl] = useState<L.Control.Layers | null>(
-    null
-  );
+  // Use useRef to hold the leaflet control instance
+  const layerControlRef = useRef<L.Control.Layers | null>(null);
   const [analysisLayers, setAnalysisLayers] = useState<L.Layer[]>([]);
 
   useEffect(() => {
@@ -80,7 +79,7 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
   const getBoundsFromGeometry = (geometry: any) => {
     if (!geometry || geometry.type !== "Polygon") return null;
 
-    const coordinates = geometry.coordinates[0]; // First ring of polygon
+    const coordinates = geometry.coordinates[0];
     let minLng = Infinity,
       minLat = Infinity;
     let maxLng = -Infinity,
@@ -113,12 +112,17 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
       return;
     }
 
+    const analysisData = {
+      farm_id: selectedFarm.id,
+      coords: coords,
+    };
+
     try {
       const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(`${backendURL}/run-analysis`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(coords),
+        body: JSON.stringify(analysisData),
       });
 
       const data = await response.json();
@@ -126,49 +130,52 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
         throw new Error(data.error || "Analysis failed");
       }
 
-      // Clear existing analysis layers
+      const { files } = data;
+
       clearAnalysisLayers();
 
-      // Initialize layer control if not exists
-      if (!layerControl) {
-        const control = L.control.layers(undefined, undefined, {
+      if (!layerControlRef.current) {
+        layerControlRef.current = L.control.layers(undefined, undefined, {
           collapsed: false,
         });
-        control.addTo(map);
-        setLayerControl(control);
+        layerControlRef.current.addTo(map);
       }
 
       const newLayers: L.Layer[] = [];
 
       // Add raster layers
       const smiLayer = await addRasterLayer(
-        `${backendURL}/downloads/soil_moisture.tif`,
+        `${backendURL}/${files.smi}`,
         getSMIColorFunction(),
         "Soil Moisture Index (SMI)"
       );
       if (smiLayer) {
         newLayers.push(smiLayer);
-        layerControl?.addOverlay(smiLayer, "Soil Moisture Index (SMI)");
+        // Use the ref's current value. It's guaranteed to be available.
+        layerControlRef.current?.addOverlay(
+          smiLayer,
+          "Soil Moisture Index (SMI)"
+        );
       }
 
       const stressLayer = await addRasterLayer(
-        `${backendURL}/downloads/crop_stress.tif`,
+        `${backendURL}/${files.stress}`,
         getCropStressColorFunction(),
         "Crop Stress"
       );
       if (stressLayer) {
         newLayers.push(stressLayer);
-        layerControl?.addOverlay(stressLayer, "Crop Stress");
+        layerControlRef.current?.addOverlay(stressLayer, "Crop Stress");
       }
 
       const socLayer = await addRasterLayer(
-        `${backendURL}/downloads/soil_organic.tif`,
+        `${backendURL}/${files.soc}`,
         getSOCColorFunction(),
         "Soil Organic Carbon"
       );
       if (socLayer) {
         newLayers.push(socLayer);
-        layerControl?.addOverlay(socLayer, "Soil Organic Carbon");
+        layerControlRef.current?.addOverlay(socLayer, "Soil Organic Carbon");
       }
 
       setAnalysisLayers(newLayers);
@@ -232,14 +239,6 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
     }
   };
 
-  const clearAnalysisLayers = () => {
-    analysisLayers.forEach((layer) => {
-      map.removeLayer(layer);
-      layerControl?.removeLayer(layer);
-    });
-    setAnalysisLayers([]);
-  };
-
   // Color functions
   const getSMIColorFunction = () => (values: number[]) => {
     const val = values[0];
@@ -280,17 +279,26 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
     else return "#fde725";
   };
 
+  const clearAnalysisLayers = () => {
+    analysisLayers.forEach((layer) => {
+      map.removeLayer(layer);
+      // Use the ref to remove the layer from the control
+      layerControlRef.current?.removeLayer(layer);
+    });
+    setAnalysisLayers([]);
+  };
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       clearAnalysisLayers();
-      if (layerControl) {
-        map.removeControl(layerControl);
+      if (layerControlRef.current) {
+        map.removeControl(layerControlRef.current);
       }
     };
   }, []);
 
-  return null; // This component doesn't render anything visible
+  return null;
 };
 
 export default CropStressAnalysis;

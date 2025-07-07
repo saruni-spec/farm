@@ -1,49 +1,36 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-//Geoman styles
+
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import "@geoman-io/leaflet-geoman-free";
 import DrawControl from "./Draw Control";
 import MapUpdater from "./Map Updater";
 import GeoJsonDisplay from "./GeoJsonDisplay";
 import CropStressAnalysis from "./Analysis";
-import AllFarmsDisplay from "./AllFarms"; // Import the new component
-import type { FeatureCollection } from "geojson";
-import type { LegendData } from "./Analysis";
+import AllFarmsDisplay from "./AllFarms";
+import useDashboardStore from "@/stores/useDashboardStore";
 
 interface MapLeafletProps {
-  lat: number;
-  long: number;
   height?: number;
-  geoData?: FeatureCollection;
-  onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void;
-  selectedFarm?: any;
-  isAnalyzing?: boolean;
-  onAnalysisComplete?: (legendData: LegendData[]) => void;
-  onAnalysisError?: (error: string) => void;
-  farms?: any[]; // Add farms prop
-  showAllFarms?: boolean; // Add showAllFarms prop
-  setSelectedFarm?: (farm: any) => void;
 }
 
-const MapLeaflet: React.FC<MapLeafletProps> = ({
-  lat = -1.286389,
-  long = 36.817223,
-  height = 350,
-  geoData,
-  onDrawFinish,
-  selectedFarm,
-  isAnalyzing = false,
-  onAnalysisComplete = () => {},
-  onAnalysisError = () => {},
-  farms = [],
-  showAllFarms = false,
-  setSelectedFarm,
-}) => {
+const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
+  const {
+    lat,
+    long,
+    geoData,
+    onDrawFinish,
+    selectedFarm,
+    isAnalyzing,
+    onAnalysisComplete,
+    onAnalysisError,
+    farms,
+    showAllFarms,
+    setSelectedFarm,
+  } = useDashboardStore();
   const position: [number, number] = [lat, long];
   const [mounted, setMounted] = useState(false);
 
@@ -90,15 +77,13 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
           <AllFarmsDisplay
             farms={farms}
             onFarmClick={(farm) => {
-              // Optional: Handle farm click (you can implement this later if needed)
-              console.log("Farm clicked:", farm.name);
+              setSelectedFarm(farm);
             }}
-            setSelectedFarm={setSelectedFarm}
           />
         )}
 
         {/* Crop Stress Analysis Component - only when not showing all farms */}
-        {!showAllFarms && (
+        {!showAllFarms && selectedFarm && (
           <CropStressAnalysis
             selectedFarm={selectedFarm}
             isAnalyzing={isAnalyzing}
