@@ -12,6 +12,7 @@ import GeoJsonDisplay from "./GeoJsonDisplay";
 import CropStressAnalysis from "./Analysis";
 import AllFarmsDisplay from "./AllFarms";
 import useDashboardStore from "@/stores/useDashboardStore";
+import LegendControl from "./LegendControl";
 
 interface MapLeafletProps {
   height?: number;
@@ -30,6 +31,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
     farms,
     showAllFarms,
     setSelectedFarm,
+    showLegend,
   } = useDashboardStore();
   const position: [number, number] = [lat, long];
   const [mounted, setMounted] = useState(false);
@@ -84,13 +86,16 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
 
         {/* Crop Stress Analysis Component - only when not showing all farms */}
         {!showAllFarms && selectedFarm && (
-          <CropStressAnalysis
-            selectedFarm={selectedFarm}
-            isAnalyzing={isAnalyzing}
-            onAnalysisComplete={onAnalysisComplete}
-            onAnalysisError={onAnalysisError}
-          />
+          <>
+            <CropStressAnalysis
+              selectedFarm={selectedFarm}
+              isAnalyzing={isAnalyzing}
+              onAnalysisComplete={onAnalysisComplete}
+              onAnalysisError={onAnalysisError}
+            />
+          </>
         )}
+        {showLegend && <LegendControl />}
       </MapContainer>
     </div>
   );

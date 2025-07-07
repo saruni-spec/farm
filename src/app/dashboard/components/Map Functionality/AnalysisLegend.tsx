@@ -1,7 +1,7 @@
 import React from "react";
 import useDashboardStore from "@/stores/useDashboardStore";
 
-const AnalysisLegend: React.FC = () => {
+const AnalysisLegend = () => {
   const { analysisLegend, showLegend } = useDashboardStore();
   if (!showLegend || analysisLegend.length === 0) return null;
 

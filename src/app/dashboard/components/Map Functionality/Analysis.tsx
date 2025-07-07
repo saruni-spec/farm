@@ -24,6 +24,17 @@ export interface LegendData {
   labels: string;
 }
 
+const analysis_colors = {
+  // Soil Moisture Index (SMI) — Blue scale (dry to wet)
+  smi: ["#f7fbff", "#c6dbef", "#6baed6", "#2171b5", "#08306b"],
+
+  // Crop Stress — Red scale (high stress to low stress)
+  stress: ["#fff5f0", "#fcbba1", "#fc9272", "#ef3b2c", "#99000d"],
+
+  // Soil Organic Carbon (SOC) — Green scale (low to high SOC)
+  soc: ["#f7fcf5", "#c7e9c0", "#74c476", "#238b45", "#00441b"],
+};
+
 const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
   selectedFarm,
   isAnalyzing,
@@ -76,29 +87,29 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
     runAnalysis();
   }, [isAnalyzing, selectedFarm]);
 
-  const getBoundsFromGeometry = (geometry: any) => {
-    if (!geometry || geometry.type !== "Polygon") return null;
+  // const getBoundsFromGeometry = (geometry: any) => {
+  //   if (!geometry || geometry.type !== "Polygon") return null;
 
-    const coordinates = geometry.coordinates[0];
-    let minLng = Infinity,
-      minLat = Infinity;
-    let maxLng = -Infinity,
-      maxLat = -Infinity;
+  //   const coordinates = geometry.coordinates[0];
+  //   let minLng = Infinity,
+  //     minLat = Infinity;
+  //   let maxLng = -Infinity,
+  //     maxLat = -Infinity;
 
-    coordinates.forEach(([lng, lat]: [number, number]) => {
-      minLng = Math.min(minLng, lng);
-      maxLng = Math.max(maxLng, lng);
-      minLat = Math.min(minLat, lat);
-      maxLat = Math.max(maxLat, lat);
-    });
+  //   coordinates.forEach(([lng, lat]: [number, number]) => {
+  //     minLng = Math.min(minLng, lng);
+  //     maxLng = Math.max(maxLng, lng);
+  //     minLat = Math.min(minLat, lat);
+  //     maxLat = Math.max(maxLat, lat);
+  //   });
 
-    return {
-      minx: minLng,
-      miny: minLat,
-      maxx: maxLng,
-      maxy: maxLat,
-    };
-  };
+  //   return {
+  //     minx: minLng,
+  //     miny: minLat,
+  //     maxx: maxLng,
+  //     maxy: maxLat,
+  //   };
+  // };
 
   const runAnalysis = async () => {
     if (!selectedFarm?.geometry) {
@@ -106,15 +117,15 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
       return;
     }
 
-    const coords = getBoundsFromGeometry(selectedFarm.geometry);
-    if (!coords) {
-      onAnalysisError("Invalid farm geometry");
-      return;
-    }
+    // const coords = getBoundsFromGeometry(selectedFarm.geometry);
+    // if (!coords) {
+    //   onAnalysisError("Invalid farm geometry");
+    //   return;
+    // }
 
     const analysisData = {
       farm_id: selectedFarm.id,
-      coords: coords,
+      coords: selectedFarm.geometry,
     };
 
     try {
@@ -188,18 +199,18 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
       const legendData: LegendData[] = [
         {
           title: "Soil Moisture Index",
-          colors: ["#ffffbf", "#abd9e9", "#74add1", "#4575b4", "#313695"],
-          labels: "Dry → Wet",
+          colors: analysis_colors.smi,
+          labels: "Dry → Wet (SMI)",
         },
         {
           title: "Crop Stress",
-          colors: ["#1a9850", "#91cf60", "#fee08b", "#fc8d59", "#d73027"],
-          labels: "Low → High Stress",
+          colors: analysis_colors.stress,
+          labels: "Low → High (C-Stress)",
         },
         {
           title: "Soil Organic Carbon",
-          colors: ["#440154", "#3b528b", "#21908d", "#5dc962", "#fde725"],
-          labels: "Low → High SOC",
+          colors: analysis_colors.soc,
+          labels: "Low → High (SOC)",
         },
       ];
 
@@ -246,11 +257,11 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
 
     const v = Math.max(0, Math.min(1, val));
 
-    if (v < 0.1) return "#ffffbf";
-    else if (v < 0.25) return "#abd9e9";
-    else if (v < 0.5) return "#74add1";
-    else if (v < 0.75) return "#4575b4";
-    else return "#313695";
+    if (v < 0.1) return analysis_colors.smi[0];
+    else if (v < 0.25) return analysis_colors.smi[1];
+    else if (v < 0.5) return analysis_colors.smi[2];
+    else if (v < 0.75) return analysis_colors.smi[3];
+    else return analysis_colors.smi[4];
   };
 
   const getCropStressColorFunction = () => (values: number[]) => {
@@ -259,11 +270,11 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
 
     const pct = Math.max(0, Math.min(100, val));
 
-    if (pct < 20) return "#1a9850";
-    else if (pct < 40) return "#91cf60";
-    else if (pct < 60) return "#fee08b";
-    else if (pct < 80) return "#fc8d59";
-    else return "#d73027";
+    if (pct < 20) return analysis_colors.stress[0];
+    else if (pct < 40) return analysis_colors.stress[1];
+    else if (pct < 60) return analysis_colors.stress[2];
+    else if (pct < 80) return analysis_colors.stress[3];
+    else return analysis_colors.stress[4];
   };
 
   const getSOCColorFunction = () => (values: number[]) => {
@@ -272,11 +283,11 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
 
     const v = Math.max(0, Math.min(1, val));
 
-    if (v < 0.1) return "#440154";
-    else if (v < 0.25) return "#3b528b";
-    else if (v < 0.5) return "#21908d";
-    else if (v < 0.75) return "#5dc962";
-    else return "#fde725";
+    if (v < 0.1) return analysis_colors.soc[0];
+    else if (v < 0.25) return analysis_colors.soc[1];
+    else if (v < 0.5) return analysis_colors.soc[2];
+    else if (v < 0.75) return analysis_colors.soc[3];
+    else return analysis_colors.soc[4];
   };
 
   const clearAnalysisLayers = () => {
