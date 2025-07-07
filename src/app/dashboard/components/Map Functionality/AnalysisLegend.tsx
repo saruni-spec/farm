@@ -1,16 +1,9 @@
 import React from "react";
-import type { LegendData } from "./Analysis";
+import useDashboardStore from "@/stores/useDashboardStore";
 
-interface AnalysisLegendProps {
-  legendData: LegendData[];
-  isVisible: boolean;
-}
-
-const AnalysisLegend: React.FC<AnalysisLegendProps> = ({
-  legendData,
-  isVisible,
-}) => {
-  if (!isVisible || legendData.length === 0) return null;
+const AnalysisLegend: React.FC = () => {
+  const { analysisLegend, showLegend } = useDashboardStore();
+  if (!showLegend || analysisLegend.length === 0) return null;
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 mt-4 border border-gray-200">
@@ -18,7 +11,7 @@ const AnalysisLegend: React.FC<AnalysisLegendProps> = ({
         Analysis Legend
       </h3>
 
-      {legendData.map((legend, index) => (
+      {analysisLegend.map((legend, index) => (
         <div key={index} className="mb-4 last:mb-0">
           <div className="font-medium text-gray-700 mb-2">{legend.title}</div>
           <div className="flex items-center gap-2">

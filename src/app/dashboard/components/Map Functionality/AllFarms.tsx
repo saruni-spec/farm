@@ -1,26 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { GeoJSON } from "react-leaflet";
-import type { FeatureCollection, Feature, Geometry } from "geojson";
-
-interface Farm {
-  id: string;
-  name: string;
-  geometry: Geometry | string;
-}
+import type { FeatureCollection, Feature } from "geojson";
+import { feature } from "@/types/geometry";
 
 interface AllFarmsDisplayProps {
-  farms: Farm[];
-  onFarmClick?: (farm: Farm) => void;
-  setSelectedFarm?: (farm: Farm) => void;
+  farms: feature[];
+  onFarmClick?: (farm: feature) => void;
+  setSelectedFarm?: (farm: feature) => void;
 }
 
 const AllFarmsDisplay: React.FC<AllFarmsDisplayProps> = ({
   farms,
   onFarmClick,
-  setSelectedFarm,
 }) => {
-  // Generate different colors for each farm
   const colors = [
     "#FF6B6B",
     "#4ECDC4",
@@ -52,11 +43,7 @@ const AllFarmsDisplay: React.FC<AllFarmsDisplayProps> = ({
     return {
       type: "FeatureCollection",
       features: farms.map((farm, index) => {
-        // ✨ FIX: Ensure the geometry is a valid object before creating the feature
-        const geometry =
-          typeof farm.geometry === "string"
-            ? JSON.parse(farm.geometry)
-            : farm.geometry;
+        const geometry = farm.geometry;
 
         return {
           type: "Feature",
@@ -75,31 +62,27 @@ const AllFarmsDisplay: React.FC<AllFarmsDisplayProps> = ({
     };
   };
 
-  const onEachFeature = (feature: Feature, layer: any) => {
-    // Add popup with farm name
+  const onEachFeature = (feature: Feature, layer: L.Layer) => {
     if (feature.properties?.farmName) {
       layer.bindPopup(`<strong>${feature.properties.farmName}</strong>`);
     }
-
-    // Add click handler if provided
     if (onFarmClick) {
       layer.on("click", () => {
         const farm = farms.find((f) => f.id === feature.properties?.farmId);
         if (farm) {
           onFarmClick(farm);
         }
-        if (setSelectedFarm && farm) setSelectedFarm(farm);
       });
     }
   };
 
-  const style = (feature: any) => {
+  const style = (feature: feature | undefined) => {
     return {
-      color: feature.properties?.color || "#3388ff",
-      fillColor: feature.properties?.fillColor || "#3388ff",
-      fillOpacity: feature.properties?.fillOpacity || 0.3,
-      weight: feature.properties?.weight || 2,
-      opacity: feature.properties?.opacity || 0.8,
+      color: feature?.properties?.color || "#3388ff",
+      fillColor: feature?.properties?.fillColor || "#3388ff",
+      fillOpacity: feature?.properties?.fillOpacity || 0.3,
+      weight: feature?.properties?.weight || 2,
+      opacity: feature?.properties?.opacity || 0.8,
     };
   };
 

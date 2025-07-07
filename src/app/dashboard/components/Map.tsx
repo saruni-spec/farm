@@ -1,62 +1,40 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { Loader2, BarChart3, Map as MapIcon } from "lucide-react";
-import type { FeatureCollection } from "geojson";
 import { supabase } from "@/superbase/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { LegendData } from "./Map Functionality/Analysis";
 import AnalysisLegend from "./Map Functionality/AnalysisLegend";
+import useDashboardStore from "@/stores/useDashboardStore";
 
 const MapLeaflet = dynamic(() => import("./Map Functionality/Map Leaflet"), {
   ssr: false,
 });
 
-const Map = ({
-  lat = -1.286389,
-  long = 36.817223,
-  height = 500,
-  segmenting,
-  setIsSegmenting,
-  saving,
-  setSaving,
-  selectedFarm,
-  getFarms,
-  farms = [],
-  setSelectedFarm,
-}: {
-  lat: number;
-  long: number;
-  height?: number;
-  segmenting: boolean;
-  setIsSegmenting: (arg0: boolean) => void;
-  saving: boolean;
-  setSaving: (arg0: boolean) => void;
-  selectedFarm: any;
-  getFarms: () => void;
-  farms?: any[];
-  setSelectedFarm?: (farm: any) => void;
-}) => {
-  console.log("farms1", farms);
+const Map = () => {
+  const {
+    segmenting,
+    setIsSegmenting,
+    saving,
+    setSaving,
+    selectedFarm,
+    getFarms,
+    geoData,
+    bbox,
+    setBbox,
+    setGeoData,
+    isAnalyzing,
+    showAllFarms,
+    runCropStressAnalysis,
+    toggleShowAllFarms,
+  } = useDashboardStore();
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
-  const [geoData, setGeoData] = useState<FeatureCollection | undefined>(
-    undefined
-  );
-  const [bbox, setBbox] = useState<number[] | null>(null);
+
   const [farmNameModal, setFarmNameModal] = useState<boolean>(false);
   const [farmName, setFarmName] = useState<string>("");
-
-  // New state for displaying all farms
-  const [showAllFarms, setShowAllFarms] = useState<boolean>(false);
-
-  // New state for crop stress analysis
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [analysisLegend, setAnalysisLegend] = useState<LegendData[]>([]);
-  const [showLegend, setShowLegend] = useState<boolean>(false);
 
   const getFarmerID = async () => {
     const { data, error } = await supabase.auth.getSession();
@@ -65,67 +43,14 @@ const Map = ({
     return farmer_id;
   };
 
-  const onDrawFinish = (bbox: number[], geoJson: FeatureCollection) => {
-    setBbox(bbox);
-    setGeoData(geoJson);
-  };
-
   useEffect(() => {
-    console.log("selectedFarm", farms);
     if (!selectedFarm || !selectedFarm.geometry) {
       setGeoData(undefined);
       return;
     }
 
-    const featureCollection: FeatureCollection = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: selectedFarm?.geometry,
-          properties: {},
-        },
-      ],
-    };
-
-    setGeoData(featureCollection);
+    setGeoData([selectedFarm]);
   }, [selectedFarm]);
-
-  // Toggle display all farms
-  const toggleShowAllFarms = () => {
-    setShowAllFarms(!showAllFarms);
-    if (!showAllFarms) {
-      // When showing all farms, clear current geoData and bbox
-      setGeoData(undefined);
-      setBbox(null);
-    }
-  };
-
-  // New function to handle crop stress analysis
-  const runCropStressAnalysis = async () => {
-    if (!selectedFarm || !selectedFarm.geometry) {
-      toast.error("Please select a farm first");
-      return;
-    }
-
-    setIsAnalyzing(true);
-    setShowLegend(false);
-    setAnalysisLegend([]);
-  };
-
-  const onAnalysisComplete = (legendData: LegendData[]) => {
-    setAnalysisLegend(legendData);
-    setShowLegend(true);
-    setIsAnalyzing(false);
-    toast.success("Crop stress analysis completed successfully");
-  };
-
-  const onAnalysisError = (error: string) => {
-    setIsAnalyzing(false);
-    setShowLegend(false);
-    setAnalysisLegend([]);
-    toast.error(`Analysis failed: ${error}`);
-  };
 
   const segmentFarm = async () => {
     if (!bbox) {
@@ -163,6 +88,7 @@ const Map = ({
       .finally(() => {
         setIsSegmenting(false);
         setBbox(null);
+        getFarms(router);
       });
   };
 
@@ -197,7 +123,7 @@ const Map = ({
         },
         body: JSON.stringify({
           farmer_id: farmer_id,
-          geometry: geoData?.features[0].geometry,
+          geometry: geoData?.[0].geometry,
           name: farmName,
           selected_area_id: selected_area_id,
         }),
@@ -211,11 +137,16 @@ const Map = ({
       const result = await response.json();
       console.log(result);
       toast.success(result.message, {
-        onClose: () => getFarms(),
+        onClose: () => getFarms(router),
       });
-    } catch (err: any) {
+      getFarms(router);
+    } catch (err) {
       console.error("Error saving farm:", err);
-      toast.error(err.message || "Failed to save farm. Try again later");
+      if (err instanceof Error) {
+        toast.error(err.message || "Failed to save farm. Try again later");
+      } else {
+        toast.error("Failed to save farm. Try again later");
+      }
     } finally {
       setSaving(false);
       setGeoData(undefined);
@@ -247,7 +178,7 @@ const Map = ({
         },
         body: JSON.stringify({
           farmer_id: farmer_id,
-          geometry: geoData?.features[0].geometry,
+          geometry: geoData?.[0].geometry,
         }),
       });
 
@@ -264,10 +195,15 @@ const Map = ({
       } = await response.json();
       toast.success(result.message || "Selected area saved successfully");
       return result;
-    } catch (err: any) {
-      toast.error(
-        err.message || "Failed to save selected area. Try again later"
-      );
+    } catch (err) {
+      console.error("Error saving selected area:", err);
+      if (err instanceof Error) {
+        toast.error(
+          err.message || "Failed to save selected area. Try again later"
+        );
+      } else {
+        toast.error("Failed to save selected area. Try again later");
+      }
     } finally {
       setSaving(false);
       setGeoData(undefined);
@@ -396,23 +332,8 @@ const Map = ({
         </div>
       )}
 
-      <MapLeaflet
-        lat={lat}
-        long={long}
-        height={height}
-        geoData={geoData}
-        onDrawFinish={onDrawFinish}
-        selectedFarm={selectedFarm}
-        isAnalyzing={isAnalyzing}
-        onAnalysisComplete={onAnalysisComplete}
-        onAnalysisError={onAnalysisError}
-        farms={farms}
-        showAllFarms={showAllFarms}
-        setSelectedFarm={setSelectedFarm}
-      />
-
-      {/* Analysis Legend */}
-      <AnalysisLegend legendData={analysisLegend} isVisible={showLegend} />
+      <MapLeaflet />
+      <AnalysisLegend />
     </div>
   );
 };
