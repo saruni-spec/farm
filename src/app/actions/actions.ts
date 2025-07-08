@@ -98,16 +98,22 @@ export async function getFarmsByFarmerId() {
 /**
  * Fetches all farms.
  */
-export async function getAllFarms() {
+export async function getAllFarms(offset = 0, limit = 10) {
   try {
-    const { data, error } = await supabase.from("farm").select("*");
+    // Select all columns, request an exact count of total rows, and apply a range for pagination.
+    // Supabase's range is inclusive, so `offset + limit - 1` gives the end index.
+    const { data, error, count } = await supabase
+      .from("farm")
+      .select("*", { count: "exact" })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Error fetching all farms:", error);
       throw new Error(`Failed to fetch all farms: ${error.message}`);
     }
 
-    return data;
+    // Return both the fetched data and the total count of farms for pagination calculation.
+    return { data, count };
   } catch (err) {
     console.error(
       "An unexpected error occurred while fetching all farms:",
@@ -121,35 +127,9 @@ export async function getAllFarms() {
  * Deletes a farm by ID.
  */
 export async function deleteFarm(farmId: string) {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    console.error("Error getting user for deleteFarm:", authError?.message);
-    throw new Error("User not authenticated.");
-  }
-
   try {
     // Add a check here or rely purely on RLS
-    const { data: farmData, error: fetchError } = await supabase
-      .from("farm")
-      .select("farmer_id")
-      .eq("id", farmId)
-      .single();
-    if (fetchError || !farmData || farmData.farmer_id !== user.id) {
-      console.warn(
-        `User ${user.id} attempted to delete farm ${farmId} which they don't own or doesn't exist.`
-      );
-      throw new Error("You do not have permission to delete this farm.");
-    }
-
-    const { error } = await supabase
-      .from("farm")
-      .delete()
-      .eq("id", farmId)
-      .eq("farmer_id", user.id);
+    const { error } = await supabase.from("farm").delete().eq("id", farmId);
 
     if (error) {
       console.error(`Error deleting farm ${farmId}:`, error);

@@ -3,7 +3,7 @@ import { getAllFarmers, getAllFarms } from "../actions/actions";
 
 // --- Page Components ---
 const DashboardPage = async () => {
-  const farmCount = (await getAllFarms()).length;
+  const farmCount = (await getAllFarms()).count;
   const farmerCount = (await getAllFarmers()).length;
 
   return (
@@ -12,7 +12,7 @@ const DashboardPage = async () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard
           title="Total Farms"
-          value={farmCount}
+          value={farmCount as number}
           icon={<Tractor size={24} />}
         />
         <StatCard
