@@ -13,7 +13,7 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) =>
 {
   const map = useMap();
   const { setSelectedFarm } = useDashboardStore();
-
+  const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
   const layersRef = useRef<L.Layer[]>([]);
   const originalSegmentsRef = useRef<feature[] | null>(null);
   const [clickedFeature, setClickedFeature] = useState<feature | null>(null);
@@ -77,7 +77,7 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) =>
     }
   };
 
-  // ✅ Initial draw
+  //Initial draw
   useEffect(() => 
   {
     if (geoData?.length && !originalSegmentsRef.current) 
@@ -113,10 +113,29 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) =>
     <>
       {
         clickedFeature && (
-          <SegmentModal feature={clickedFeature} onClose={handleCloseModal} onDelete={handleDelete} onSave={() => 
+          <SegmentModal feature={clickedFeature} onClose={handleCloseModal} onDelete={handleDelete} onSave={async farmName => 
           {
-            console.log("Save segment", clickedFeature);
-            handleCloseModal();
+            try
+            {
+              const response = await fetch(`${backendURL}/api/farms/${clickedFeature?.id}`,
+              {
+                method: "PUT",
+                headers: 
+                {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({name: farmName})
+              })
+              if(!response.ok) throw new Error("Failed to save segment")
+              const result = await response.json()
+              toast.success(result.message || "Segment saved successfully")
+              handleCloseModal()
+            }
+            catch (error)
+            {
+              console.log(error )
+              toast.error("Saving segment failed. Try again later!")
+            }
           }}/>
         )
       }
