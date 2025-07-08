@@ -5,7 +5,7 @@ import "./globals.css";
 //Importing the phone number input styling
 import 'react-phone-input-2/lib/style.css'
 
-import { ToastContainer } from 'react-toastify'
+import { Bounce, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const geistSans = Geist({
@@ -32,7 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
-        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick/>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss={false} pauseOnHover={false} transition={Bounce}/>
       </body>
     </html>
   );

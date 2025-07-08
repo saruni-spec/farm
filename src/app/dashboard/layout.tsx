@@ -4,6 +4,7 @@ import { Leaf, Power } from "lucide-react";
 import Navbar from "@/components/ui/Nav";
 import { supabase } from "@/superbase/client";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Layout = ({ children }: { children: React.ReactNode }) => 
 {
@@ -58,7 +59,10 @@ const Layout = ({ children }: { children: React.ReactNode }) =>
   const logOut = async () =>
   {
     await supabase.auth.signOut()
-    router.push("/account/login")
+    toast.success("Logged out successfully",
+    {
+      onClose: () => router.push("/account/login")
+    })
   }
 
   //Function to handle closing the dropdown once the user clicks outside of if
