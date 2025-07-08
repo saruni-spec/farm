@@ -16,6 +16,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { supabase } from "@/superbase/client"
 import { redirect } from "next/navigation"
+import { toast } from "react-toastify"
 
 const Signup = () => 
 {
@@ -32,8 +33,6 @@ const Signup = () =>
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [phoneError, setPhoneError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
@@ -54,18 +53,16 @@ const Signup = () =>
   const handleSignup = async (e: React.FormEvent) => 
   {
     e.preventDefault()
-    setError(null)
-    setSuccess(false)
 
     if (userDetails.password !== userDetails.confirmPassword) 
     {
-      setError("Passwords do not match.")
+      toast.error("Passwords do not match.")
       return
     }
 
     if (phoneError) 
     {
-      setError("Please fix the phone number error before signing up.")
+      toast.error("Please fix the phone number error before signing up.")
       return
     }
 
@@ -91,24 +88,24 @@ const Signup = () =>
 
       if (error) 
       {
-        setError(error.message)
+        toast.error(error.message)
       } 
       else if (data.user) 
       {
         console.log("Signup successful:", data.user)
-        setSuccess(true)
       } 
       else if (data.session === null && data.user === null) 
       {
-        setSuccess(true)
-        console.log("Signup successful, please check your email for confirmation.")
-        redirect("/account/login")
+        toast.success("Signup successful, please check your email for confirmation.",
+        {
+          onClose: () => redirect("/account/login")
+        })
       }
     } 
     catch (err) 
     {
       console.error("Signup error:", err)
-      setError("An unexpected error occurred during signup.")
+      toast.error("An unexpected error occurred during signup.")
     } 
     finally 
     {
@@ -200,22 +197,6 @@ const Signup = () =>
             </button>
           </div>
         </div>
-
-        {/* Display error message */}
-        {
-          error && 
-          (
-            <p className="col-span-1 md:col-span-2 text-red-600 text-center">{error}</p>
-          )
-        }
-
-        {/* Display success message */}
-        {
-          success && 
-          (
-            <p className="col-span-1 md:col-span-2 text-green-600 text-center">Signup successful! Please check your email to confirm your account.</p>
-          )
-        }
 
         <div className="col-span-1 md:col-span-2">
           <Button type="submit" className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition"  disabled={loading || !!phoneError}>
