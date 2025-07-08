@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/superbase/client";
 import { getProfile } from "@/app/actions/actions";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const router = useRouter();
@@ -21,8 +22,6 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setLoginCredentials({
@@ -32,12 +31,10 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
 
     // Basic validation
     if (!loginCredentials.email || !loginCredentials.password) {
-      setError("Please enter both email and password.");
+      toast.error("Please enter both email and password.");
       return;
     }
 
@@ -50,10 +47,10 @@ const Login = () => {
       });
 
       if (error) {
-        setError(error.message);
+        toast.error(error.message);
       } else if (data.user) {
-        console.log("Login successful:");
-        setSuccess(true);
+        toast.success("Login successful:");
+        // setSuccess(true);
         setLoginCredentials({
           email: "",
           password: "",
@@ -67,11 +64,11 @@ const Login = () => {
         }
         router.push("/dashboard");
       } else {
-        setError("Login failed. Please check your credentials.");
+        toast.error("Login failed. Please check your credentials.");
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("An unexpected error occurred during login.");
+      toast.error("An unexpected error occurred during login.");
     } finally {
       setLoading(false);
     }
@@ -149,16 +146,6 @@ const Login = () => {
               Forgot password?
             </Link>
           </div>
-
-          {error && (
-            <p className="col-span-full text-red-600 text-center">{error}</p>
-          )}
-
-          {success && (
-            <p className="col-span-full text-green-600 text-center">
-              Login successful
-            </p>
-          )}
 
           <Button
             type="submit"
