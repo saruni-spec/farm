@@ -126,3 +126,17 @@ html
   scroll-behavior: smooth;
 }
 
+/* Tailored for modal */
+.leaflet-modal-map .leaflet-tile-pane,
+.leaflet-modal-map .leaflet-overlay-pane,
+.leaflet-modal-map .leaflet-shadow-pane,
+.leaflet-modal-map .leaflet-marker-pane,
+.leaflet-modal-map .leaflet-tooltip-pane,
+.leaflet-modal-map .leaflet-popup-pane {
+  z-index: 999 !important;
+}
+
+.leaflet-modal-map .leaflet-container {
+  background: white;
+  isolation: isolate;
+}

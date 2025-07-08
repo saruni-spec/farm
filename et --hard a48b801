@@ -1,0 +1,110 @@
+[33m9305b01[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Remove console logs and fix dependency arrays in useEffect hooks
+[33ma48b801[m Merge pull request #57 from saruni-spec/dashboard
+[33mc3e7743[m Merge branch 'main' into dashboard
+[33m0031b17[m[33m ([m[1;31morigin/dashboard[m[33m, [m[1;32mdashboard[m[33m)[m Add map analysis features with farm visualization and crop stress analysis
+[33m809d462[m Merge pull request #56 from saruni-spec/dashboard
+[33m23cd5c1[m Add selected area ID tracking and remove redundant save button
+[33mc5ca01a[m Merge branch 'main' of github.com:saruni-spec/farm
+[33m4007752[m Deploying the app using PM2
+[33mb1b2d85[m Add ecosystem config for PM2 deploy
+[33m7ad1cd1[m Merge pull request #55 from saruni-spec/dashboard
+[33mce35644[m Refactor Supabase client to use single instance and remove unused type definition
+[33mfd2a9d9[m Add admin panel with user and farm management, update login routing
+[33m383ad2e[m Merge pull request #53 from saruni-spec/Samuel
+[33m61399c2[m Made styling changes to the dashboard
+[33md87bd4c[m Merge pull request #52 from saruni-spec/Samuel
+[33m463d270[m Made styling changes to the edit and delete farm buttons
+[33m16a07df[m Merge pull request #51 from saruni-spec/Samuel
+[33m800350e[m Fixed the window page error
+[33md7dac15[m Edit and delete functionality completed
+[33m293baaf[m Edit and delete functionality completed
+[33m1666b8f[m Farm fetching for the logged in farmer done
+[33m42dce36[m Saving the selected area without segmentation done
+[33m5f6c811[m Saving the selected area without segmentation done
+[33mdfdd7ad[m Merge pull request #50 from saruni-spec/Samuel
+[33mde9c970[m Changed the constituencies to sub-counties
+[33m29d5bb9[m Replaced the field health card with the current weather
+[33mb5a547b[m Worked on displaying the user's first letter as a circle. Also added functionality for closing the profile dropdown once a user clicks outside of it
+[33ma69dff9[m Moved the farm dropdown to replace the overlays section
+[33m301a938[m Fetched the farms and also modified it such that when a farm is selected, the farm is drawn on the map
+[33mf72b579[m Save farm functionality conpleted
+[33m49144e3[m Merge pull request #49 from saruni-spec/Samuel
+[33m64f6bed[m Added the username to the navbar. Working on saving the farm to the database
+[33m83dc8ba[m Removed the blue bounding box after segmentation
+[33m83cd2aa[m Merge pull request #48 from saruni-spec/Samuel
+[33m572ac21[m Segmentation integration done. Working on a few cleanups
+[33mbe11fc8[m Segmentation integration done. Working on a few cleanups
+[33m4460ac6[m Working on integrating the segmentation model
+[33ma6ebce1[m Working on integrating the segmentation model
+[33m9261101[m Integrating the segmentation model
+[33m336b84c[m Merge branch 'main' of https://github.com/saruni-spec/farm into Samuel
+[33m34afa72[m Merge pull request #47 from saruni-spec/feature/segmentation
+[33mcf5b3b5[m[33m ([m[1;31morigin/feature/segmentation[m[33m)[m Update return types and remove unused imports in map components
+[33m4d607a0[m Add farm analysis report with dynamic data visualization and metrics
+[33ma82beb4[m Merge pull request #46 from saruni-spec/conflicts
+[33m7fd2b4e[m[33m ([m[1;31morigin/conflicts[m[33m)[m Add auth session check and redirect to login page if session invalid
+[33m42307a6[m Merge pull request #45 from saruni-spec/conflicts
+[33m39c2fd9[m Add mode dependency to draw control and set map mode to segment
+[33m246ff59[m Add farm rendering and mode-based drawing controls to map functionality
+[33m04eacc9[m Add farm component and reorganize map dialog layout
+[33m5f786ca[m Add dialog component for creating new farm on the map
+[33mc163dfa[m Reorganize map components and add farm creation functionality to Draw Control
+[33mb1e59ac[m Add map drawing functionality and update landing page styling
+[33m4ee4b53[m[33m ([m[1;31morigin/feature/farmdb[m[33m, [m[1;32mfix-conflicts[m[33m, [m[1;32mfeature/farmdb[m[33m)[m Update landing page layout and styling, replace hero background image
+[33m23991cb[m Add farm management with RLS policies
+[33ma5e58b1[m Add farm table with spatial support and migrate to Supabase client for farm operations
+[33m7d109e9[m Placed the challenges in cards
+[33m0c27cc5[m Merge pull request #43 from saruni-spec/Samuel
+[33mc4f7f16[m Added map functionality to the dashboard
+[33ma16feb4[m Added map functionality to the dashboard
+[33md365c16[m Modified the dashboard links
+[33m35717ce[m Merge pull request #42 from saruni-spec/Samuel
+[33m061838c[m Changed the flex behaviour of the dashboard page
+[33m8921954[m Merge pull request #41 from saruni-spec/Samuel
+[33m7fdee85[m Clearing the form data once a user logs in or signs up
+[33m5be2d79[m Changed the login redirect to the newly created dashboard
+[33m356af09[m Merge pull request #40 from saruni-spec/Samuel
+[33m2230a43[m Merge branch 'main' into Samuel
+[33mf8c2bf4[m Styling the dashboard. Moving on to adding the map
+[33mba4f704[m Remove explicit 'any' type from error handling in login and signup page
+[33m2c43ca8[m Merge pull request #37 from saruni-spec/feature/auth_
+[33mb32ab61[m Add RLS and schema prefixes, remove router redirect in signup flow
+[33mc916c23[m Implement Supabase authentication and session management
+[33m52509bb[m Merge pull request #36 from saruni-spec/dashboard
+[33mdfaae60[m Added the password toggle icon in the login page
+[33m4df0e9f[m Merge pull request #35 from saruni-spec/dashboard
+[33m88bfe3a[m Changed the landing page, login and signup pages
+[33mee19675[m Merge pull request #34 from saruni-spec/dashboard
+[33mce36dff[m Changed the landing page, login and signup pages
+[33mfbb4da9[m Changed the landing page, login and signup pages
+[33mccfa440[m Add new button variants and enhance landing page with modern UI components
+[33m73ecacf[m Remove alert notification after saving farm in DrawControl component
+[33m55bda44[m local db removed
+[33m1a17ae6[m Merge pull request #33 from saruni-spec/feature/database
+[33m7d6be1e[m refactor
+[33mb1bac01[m delete prisma
+[33m90dc684[m Add TypeScript types to saveFarm function parameters
+[33m3f69188[m Refactor map components and update database connection imports
+[33m4d165c6[m Initialize Prisma client and database schema with farm management models
+[33maf4b144[m Merge pull request #32 from saruni-spec/dashboard
+[33m65929b9[m Added functionality to the add farm button
+[33mc089c4a[m Merge pull request #31 from saruni-spec/dashboard
+[33m91d2789[m Added functionality to the add farm button
+[33m93d6fa3[m Merge pull request #30 from saruni-spec/dashboard
+[33m9ab16b7[m Fixed the type errors
+[33mfdd5fd2[m Merge pull request #29 from saruni-spec/dashboard
+[33mf27dce9[m Fixed the type errors
+[33mc342a5d[m Merge pull request #28 from saruni-spec/dashboard
+[33mc05f683[m Modified the map functionality such that once a user selects a county, constituency or ward, the map center position changes accordingly
+[33m605c8d9[m Merge pull request #27 from saruni-spec/dashboard
+[33m8c92ebd[m Merge branch 'main' into dashboard
+[33m5c9d24b[m Modified the map functionality such that once a user selects a county, constituency or ward, the map center position changes accordingly
+[33m6926752[m Merge pull request #26 from saruni-spec/dashboard
+[33m47ab5ba[m Created and styled the map test page. Moving onto integrating the search parameters with the map location modification
+[33m874ec2f[m Merge pull request #25 from saruni-spec/feature/interface
+[33m4597f66[m[33m ([m[1;31morigin/feature/interface[m[33m, [m[1;32mfeature/interface[m[33m)[m Add AOI configuration files and remove reports page
+[33m67e4b4b[m Merge pull request #24 from saruni-spec/feature/signup
+[33mcee0c00[m Merge pull request #23 from saruni-spec/feature/login
+[33mdd7160a[m[33m ([m[1;31morigin/feature/signup[m[33m)[m Modified the signup page by joining them into one
+[33me4a328c[m Removed the multiple login pages and made it one
+[33
