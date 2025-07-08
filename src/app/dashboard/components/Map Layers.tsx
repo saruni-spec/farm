@@ -317,24 +317,6 @@ const MapLayers = () => {
         </Button>
       </div>
 
-      {/* Date Range */}
-      <div>
-        <label className="block text-sm font-medium mb-2">Date Range</label>
-        <div className="flex gap-2">
-          <input type="date" className="w-full rounded-md border-gray-300" />
-          <input type="date" className="w-full rounded-md border-gray-300" />
-        </div>
-      </div>
-
-      {/* Update Button */}
-      <button
-        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 mt-2 disabled:cursor-not-allowed disabled:bg-blue-300"
-        disabled={segmenting}
-      >
-        <RefreshCcw size={18} />
-        Update Map
-      </button>
-
       {isEditModalOpen && selectedFarm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
