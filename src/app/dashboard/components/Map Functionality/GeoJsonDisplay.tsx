@@ -8,11 +8,14 @@ import { feature } from "@/types/geometry";
 import useDashboardStore from "@/stores/useDashboardStore";
 import SegmentModal from "./Segment Modal";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation"
 
 const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) => 
 {
   const map = useMap();
+  const router = useRouter()
   const { setSelectedFarm } = useDashboardStore();
+  const getFarms = useDashboardStore((state) => state.getFarms)
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL
   const layersRef = useRef<L.Layer[]>([]);
   const originalSegmentsRef = useRef<feature[] | null>(null);
@@ -129,6 +132,7 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) =>
               if(!response.ok) throw new Error("Failed to save segment")
               const result = await response.json()
               toast.success(result.message || "Segment saved successfully")
+              getFarms(router)
               handleCloseModal()
             }
             catch (error)
