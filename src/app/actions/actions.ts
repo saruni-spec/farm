@@ -1,99 +1,10 @@
 "use server";
-import { Position } from "geojson";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-/**
- * Creates a new farm for the authenticated user.
- */
-export async function createFarm(farmName: string, farmGeometry: Position[][]) {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    console.error("Error getting user for createFarm:", authError?.message);
-    throw new Error("User not authenticated.");
-  }
-
-  // Ensure the polygon is closed by repeating the first coordinate at the end
-  if (farmGeometry[0][0] !== farmGeometry[0][farmGeometry[0].length - 1]) {
-    farmGeometry[0].push(farmGeometry[0][0]);
-  }
-
-  // Convert coordinates to WKT format
-  const wkt = `POLYGON((${farmGeometry[0]
-    .map((coord) => `${coord[0]} ${coord[1]}`)
-    .join(", ")}))`;
-
-  try {
-    const { data, error } = await supabase
-      .from("farm")
-      .insert([
-        {
-          farmer_id: user.id,
-          name: farmName,
-          geom: wkt,
-        },
-      ])
-      .select();
-
-    if (error) {
-      console.error("Error creating farm:", error);
-      throw new Error(`Failed to create farm: ${error.message}`);
-    }
-    return data;
-  } catch (err) {
-    console.error("An unexpected error occurred while creating farm:", err);
-    throw new Error("An unexpected error occurred.");
-  }
-}
-
-/**
- * Fetches all farms for the authenticated user.
- */
-export async function getFarmsByFarmerId() {
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    console.error(
-      "Error getting user for getFarmsByFarmerId:",
-      authError?.message
-    );
-    console.warn("Attempted to fetch farms for unauthenticated user.");
-    return [];
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("farm")
-      .select("*")
-      .eq("farmer_id", user.id);
-
-    if (error) {
-      console.error(`Error fetching farms for farmer ${user.id}:`, error);
-      throw new Error(`Failed to fetch farms: ${error.message}`);
-    }
-
-    return data;
-  } catch (err) {
-    console.error(
-      `An unexpected error occurred while fetching farms for farmer ${
-        user?.id || "N/A"
-      }:`,
-      err
-    );
-    throw new Error("An unexpected error occurred.");
-  }
-}
 
 /**
  * Fetches all farms.
@@ -144,19 +55,6 @@ export async function deleteFarm(farmId: string) {
     );
     throw new Error((err as Error).message || "An unexpected error occurred.");
   }
-}
-
-/**
- * Gets the current farmer ID.
- */
-export async function getCurrentFarmerId() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    return user.id;
-  }
-  return null;
 }
 
 export async function getAllFarmers() {

@@ -17,11 +17,12 @@ interface DashboardState {
   selectedFarm: feature | null;
   backendURL: string | undefined;
   geoData?: feature[];
+  selectedFarmGeoData?: feature[];
   bbox: number[] | null;
   isAnalyzing: boolean;
   analysisLegend: LegendData[];
   showLegend: boolean;
-
+  segmentedFarms?: feature[];
   showAllFarms: boolean;
 }
 
@@ -36,11 +37,13 @@ interface DashboardActions {
   getFarms: (router: any) => Promise<void>;
   setBbox: (bbox: number[] | null) => void;
   setGeoData: (geoData?: feature[]) => void;
+  setSelectedFarmGeoData: (geoData?: feature[]) => void;
   onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void;
   runCropStressAnalysis: () => void;
   onAnalysisComplete: (legendData: LegendData[]) => void;
   onAnalysisError: (error: string) => void;
   toggleShowAllFarms: () => void;
+  setSegmentedFarms: (segmentedFarms: feature[]) => void;
 }
 
 // Combine state and actions
@@ -56,11 +59,13 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   selectedFarm: null as feature | null,
   backendURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   geoData: undefined,
+  selectedFarmGeoData: undefined,
   bbox: null,
   isAnalyzing: false,
   analysisLegend: [],
   showLegend: false,
   showAllFarms: false,
+  segmentedFarms: undefined,
 
   // Actions
   setLat: (lat) => set({ lat }),
@@ -68,15 +73,18 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   setIsSegmenting: (segmenting) => set({ segmenting }),
   setSaving: (saving) => set({ saving }),
   setFarms: (farms) => set({ farms }),
+  setSegmentedFarms: (segmentedFarms) => set({ segmentedFarms }),
   setSelectedFarm: (farm: feature | null | undefined) => {
     if (!farm || !farm.geometry) {
-      set({ geoData: undefined });
+      set({ selectedFarmGeoData: undefined });
       return;
     }
     set({ selectedFarm: farm });
     farm["type"] = "Feature";
-    set({ geoData: [farm] });
+    set({ selectedFarmGeoData: [farm] });
   },
+  setSelectedFarmGeoData: (geoData?: feature[]) =>
+    set({ selectedFarmGeoData: geoData }),
   getFarms: async (router) => {
     try {
       const { data, error } = await supabase.auth.getSession();
@@ -112,7 +120,6 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   setBbox: (bbox) => set({ bbox }),
   setGeoData: (geoData) => set({ geoData }),
   onDrawFinish: (bbox, geoJson) => {
-    console.log("geoJson", geoJson);
     set({ bbox, geoData: geoJson.features });
   },
   runCropStressAnalysis: () => {
@@ -142,9 +149,15 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   toggleShowAllFarms: () => {
     const { showAllFarms } = get();
     set({ showAllFarms: !showAllFarms });
-    if (!showAllFarms) {
+    if (showAllFarms) {
       // When showing all farms, clear current geoData and bbox
-      set({ geoData: undefined, bbox: null });
+      set({
+        geoData: undefined,
+        bbox: null,
+        selectedFarmGeoData: undefined,
+        selectedFarm: null,
+        segmentedFarms: undefined,
+      });
     }
   },
 }));

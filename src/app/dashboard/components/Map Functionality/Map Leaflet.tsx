@@ -13,6 +13,7 @@ import CropStressAnalysis from "./Analysis";
 import AllFarmsDisplay from "./AllFarms";
 import useDashboardStore from "@/stores/useDashboardStore";
 import LegendControl from "./LegendControl";
+import SelectSpecificFarm from "./SelectSpecificFarm";
 
 interface MapLeafletProps {
   height?: number;
@@ -31,7 +32,9 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
     farms,
     showAllFarms,
     setSelectedFarm,
+    selectedFarmGeoData,
     showLegend,
+    segmentedFarms,
   } = useDashboardStore();
   const position: [number, number] = [lat, long];
   const [mounted, setMounted] = useState(false);
@@ -73,12 +76,26 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
 
         {/* Show individual farm or drawn area when not showing all farms */}
         {!showAllFarms && geoData && <GeoJsonDisplay geoData={geoData} />}
+        {selectedFarmGeoData && (
+          <SelectSpecificFarm geoData={selectedFarmGeoData} />
+        )}
 
         {/* Show all farms when showAllFarms is true */}
         {showAllFarms && (
           <AllFarmsDisplay
             farms={farms}
             onFarmClick={(farm) => {
+              console.log("Farm clicked:", farm);
+              setSelectedFarm(farm);
+            }}
+          />
+        )}
+
+        {segmentedFarms && (
+          <AllFarmsDisplay
+            farms={segmentedFarms}
+            onFarmClick={(farm) => {
+              console.log("Farm clicked:", farm);
               setSelectedFarm(farm);
             }}
           />

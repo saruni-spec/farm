@@ -50,9 +50,9 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) =>
         style: 
         {
           color: "#FFA500",
-          weight: 2,
+          weight: 1,
           fillColor: "#FFA500",
-          fillOpacity: 0.4,
+          fillOpacity: 0.3,
         },
         onEachFeature: (_f, l) => 
         {
