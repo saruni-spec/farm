@@ -332,6 +332,7 @@ const MapLayers = () => {
           </Button>
         </div>
       </div>
+
       {/* Date Range */}
       <div>
         <label className="block text-sm font-medium mb-2">Date Range</label>
@@ -349,6 +350,7 @@ const MapLayers = () => {
         <RefreshCcw size={18} />
         Update Map
       </button>
+
 
       {isEditModalOpen && selectedFarm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">

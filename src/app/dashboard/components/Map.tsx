@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,7 @@ const Map = () => {
       body: JSON.stringify(payload),
     })
       .then((res) => res.json())
+
       .then((data) => {
         setBbox(null);
         setGeoData(undefined);
@@ -83,6 +85,7 @@ const Map = () => {
         getFarms(router);
         setSegmentedFarms(data);
         toast.success("Field area segmented successfully");
+
       })
       .catch((err) => {
         console.error("Error fetching segmentation:", err);
