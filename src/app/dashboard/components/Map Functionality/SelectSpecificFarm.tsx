@@ -4,21 +4,19 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import { feature } from "@/types/geometry";
-import useDashboardStore from "@/stores/useDashboardStore";
 
-const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) => {
+const SelectSpecificFarm = ({ geoData }: { geoData: feature[] }) => {
   const map = useMap();
-  const { setSelectedFarm } = useDashboardStore();
 
   useEffect(() => {
     if (!map || !geoData) return;
     if (geoData.length === 0) return;
 
     // Defensive: safely create pane
-    let pane = map.getPane("segmentsPane");
+    let pane = map.getPane("specificFarmPane");
     if (!pane) {
-      map.createPane("segmentsPane");
-      pane = map.getPane("segmentsPane");
+      map.createPane("specificFarmPane");
+      pane = map.getPane("specificFarmPane");
     }
 
     if (pane) pane.style.zIndex = "450";
@@ -26,17 +24,15 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) => {
     const layers: L.Layer[] = [];
 
     geoData.forEach((feature) => {
-      onclick = () => {
-        setSelectedFarm(feature);
-      };
       feature["type"] = "Feature";
       const layer = L.geoJSON(feature, {
-        pane: "segmentsPane",
+        pane: "specificFarmPane",
+
         style: {
           color: "#FFA500",
-          weight: 1,
+          weight: 3,
           fillColor: "#FFA500",
-          fillOpacity: 0.3,
+          fillOpacity: 0.5,
         },
       }).addTo(map);
       layers.push(layer);
@@ -54,4 +50,4 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) => {
   return null;
 };
 
-export default GeoJsonDisplay;
+export default SelectSpecificFarm;

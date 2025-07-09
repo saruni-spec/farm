@@ -28,6 +28,7 @@ const Map = () => {
     showAllFarms,
     runCropStressAnalysis,
     toggleShowAllFarms,
+    setSegmentedFarms,
   } = useDashboardStore();
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
@@ -76,8 +77,11 @@ const Map = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Fetched GeoJSON:", data);
-        setGeoData(data);
+        setBbox(null);
+        setGeoData(undefined);
+
+        getFarms(router);
+        setSegmentedFarms(data);
         toast.success("Field area segmented successfully");
       })
       .catch((err) => {
@@ -86,8 +90,6 @@ const Map = () => {
       })
       .finally(() => {
         setIsSegmenting(false);
-        setBbox(null);
-        getFarms(router);
       });
   };
 

@@ -9,6 +9,7 @@ import { counties, constituencies } from "kenya";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
 import useDashboardStore from "@/stores/useDashboardStore";
+import { useRouter } from "next/navigation";
 const MiniMap = dynamic(() => import("@/components/MiniMap"), { ssr: false });
 
 // Define the types for county, sub-county, and ward
@@ -42,9 +43,17 @@ interface Ward {
 }
 
 const MapLayers = () => {
-  const { setLat, setLong, segmenting, farms, selectedFarm, setSelectedFarm } =
-    useDashboardStore();
+  const {
+    setLat,
+    setLong,
+    segmenting,
+    farms,
+    selectedFarm,
+    setSelectedFarm,
+    getFarms,
+  } = useDashboardStore();
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const router = useRouter();
 
   const [allCounties, setAllCounties] = useState<County[]>([]);
   const [allConstituencies, setAllConstituencies] = useState<SubCounty[]>([]);
@@ -63,6 +72,7 @@ const MapLayers = () => {
 
   useEffect(() => {
     if (selectedFarm) setEditedFarmName(selectedFarm.name || "");
+    console.log("Selected farm:", selectedFarm);
   }, [selectedFarm]);
 
   const handleUpdateFarm = async () => {
@@ -81,6 +91,7 @@ const MapLayers = () => {
       if (!response.ok) throw new Error("Failed to update farm");
       const result = await response.json();
       toast.success(result.message || "Farm updated successfully!");
+      getFarms(router);
       setIsEditModalOpen(false);
     } catch (error) {
       toast.error("Update failed.");
@@ -111,6 +122,7 @@ const MapLayers = () => {
 
         const result = await response.json();
         toast.success(result.message || "Farm deleted successfully!");
+        getFarms(router);
         setSelectedFarm(null);
       } catch (error) {
         toast.error("Delete failed.");
@@ -300,23 +312,26 @@ const MapLayers = () => {
         </select>
       </div>
       {/* Edit and Delete Buttons */}
-      <div className="flex justify-between gap-2">
-        <Button
-          disabled={!selectedFarm}
-          variant={"edit"}
-          onClick={() => setIsEditModalOpen(true)}
-        >
-          Edit Farm
-        </Button>
-        <Button
-          disabled={!selectedFarm}
-          variant={"delete"}
-          onClick={() => handleDeleteFarm()}
-        >
-          Delete Farm
-        </Button>
-      </div>
+      <div className="flex flex-col">
+        {selectedFarm && <p>{selectedFarm.name || selectedFarm.id}</p>}
 
+        <div className="flex justify-between gap-2">
+          <Button
+            disabled={!selectedFarm}
+            variant={"edit"}
+            onClick={() => setIsEditModalOpen(true)}
+          >
+            Edit Farm
+          </Button>
+          <Button
+            disabled={!selectedFarm}
+            variant={"delete"}
+            onClick={() => handleDeleteFarm()}
+          >
+            Delete Farm
+          </Button>
+        </div>
+      </div>
       {/* Date Range */}
       <div>
         <label className="block text-sm font-medium mb-2">Date Range</label>

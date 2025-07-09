@@ -6,12 +6,14 @@ import L from "leaflet";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import type { FeatureCollection } from "geojson";
+import useDashboardStore from "@/stores/useDashboardStore";
 
 const DrawControl = ({
   onDrawFinish,
 }: {
   onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void;
 }) => {
+  const { segmentedFarms } = useDashboardStore();
   const map = useMap();
   const drawControlRef = useRef<L.Control.Draw | null>(null);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
@@ -150,6 +152,16 @@ const DrawControl = ({
       map.on("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
     };
   }, [map, onDrawFinish]);
+
+  useEffect(() => {
+    if (drawnItemsRef.current && segmentedFarms && segmentedFarms.length > 0) {
+      map.eachLayer((layer) => {
+        if (layer.options.pane === "specificFarmPane") {
+          map.removeLayer(layer);
+        }
+      });
+    }
+  }, [segmentedFarms]);
 
   return null;
 };
