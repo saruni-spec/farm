@@ -154,8 +154,9 @@ const DrawControl = ({
   }, [map, onDrawFinish]);
 
   useEffect(() => {
-    if (drawnItemsRef.current && segmentedFarms && segmentedFarms.length > 0) {
+    if (segmentedFarms && segmentedFarms.length > 0) {
       map.eachLayer((layer) => {
+        console.log(layer.options.pane);
         if (layer.options.pane === "specificFarmPane") {
           map.removeLayer(layer);
         }
