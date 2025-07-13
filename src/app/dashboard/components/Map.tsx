@@ -70,6 +70,8 @@ const Map = () => {
       farmer_id: farmer_id,
       selected_area_id: selected_area_id,
     };
+    setBbox(null);
+    setGeoData(undefined);
 
     fetch(`${backendURL}/segment`, {
       method: "POST",
@@ -79,13 +81,9 @@ const Map = () => {
       .then((res) => res.json())
 
       .then((data) => {
-        setBbox(null);
-        setGeoData(undefined);
-
         getFarms(router);
         setSegmentedFarms(data);
         toast.success("Field area segmented successfully");
-
       })
       .catch((err) => {
         console.error("Error fetching segmentation:", err);

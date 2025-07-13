@@ -60,12 +60,9 @@ const DrawControl = ({
       // Add to FeatureGroup (so it can be edited/deleted)
       drawnItems.addLayer(layer);
 
-      // // Immediately disable editing on this layer to remove blue bounding box
-      // if (typeof layer.disableEdit === 'function')
-      // {
-      //     layer.disableEdit()
-      // }
-
+      if ("disableEdit" in layer) {
+        (layer as any).disableEdit();
+      }
       // Convert to GeoJSON
       const geoJsonFeature = layer.toGeoJSON();
 
@@ -136,8 +133,8 @@ const DrawControl = ({
       });
     };
 
-    map.on("draw:created", onDrawCreated as L.LeafletEventHandlerFn);
-    map.on("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
+    map.off("draw:created", onDrawCreated as L.LeafletEventHandlerFn);
+    map.off("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
 
     return () => {
       if (drawControlRef.current) {
@@ -153,14 +150,29 @@ const DrawControl = ({
     };
   }, [map, onDrawFinish]);
 
+  // useEffect(() => {
+  //   if (segmentedFarms && segmentedFarms.length > 0) {
+  //     map.eachLayer((layer) => {
+  //       console.log(layer.options.pane);
+  //       if (
+  //         layer.options.pane === "specificFarmPane" ||
+  //         layer.options.pane === "overlayPane" ||
+  //         layer.options.pane === "tilePane"
+  //       ) {
+  //         map.removeLayer(layer);
+  //       }
+  //     });
+  //   }
+  // }, [segmentedFarms]);
+
   useEffect(() => {
-    if (segmentedFarms && segmentedFarms.length > 0) {
-      map.eachLayer((layer) => {
-        console.log(layer.options.pane);
-        if (layer.options.pane === "specificFarmPane") {
-          map.removeLayer(layer);
-        }
-      });
+    if (segmentedFarms && segmentedFarms.length > 0 && drawnItemsRef.current) {
+      drawnItemsRef.current.clearLayers();
+
+      const svgElements = map
+        .getContainer()
+        .querySelectorAll("path.leaflet-interactive");
+      svgElements.forEach((el) => el.remove());
     }
   }, [segmentedFarms]);
 

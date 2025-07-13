@@ -85,7 +85,6 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
           <AllFarmsDisplay
             farms={farms}
             onFarmClick={(farm) => {
-              console.log("Farm clicked:", farm);
               setSelectedFarm(farm);
             }}
           />
@@ -95,7 +94,6 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
           <AllFarmsDisplay
             farms={segmentedFarms}
             onFarmClick={(farm) => {
-              console.log("Farm clicked:", farm);
               setSelectedFarm(farm);
             }}
           />
