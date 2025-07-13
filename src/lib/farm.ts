@@ -25,6 +25,7 @@ export const updateFarm = async (
     return true;
   } catch (error) {
     toast.error("Update failed.");
+    console.error(error);
     return false;
   }
 };
@@ -56,6 +57,7 @@ export const deleteFarm = async (selectedFarm: feature) => {
       return true;
     } catch (error) {
       toast.error("Delete failed.");
+      console.error(error);
       return false;
     }
   }
