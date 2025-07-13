@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AnalysisCards from "./components/Analysis Cards";
-import ManagementZones from "./components/Management Zones";
+import AnalysisCards from "./components/AnalysisCards";
+import ManagementZones from "./components/ManagementZones";
 import Map from "./components/Map";
-import MapLayers from "./components/Map Layers";
+import MapLayers from "./components/MapLayers";
 import useDashboardStore from "@/stores/useDashboardStore";
 
 const Dashboard = () => {

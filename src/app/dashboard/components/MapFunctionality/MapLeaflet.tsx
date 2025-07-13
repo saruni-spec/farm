@@ -6,8 +6,8 @@ import "leaflet-draw/dist/leaflet.draw.css";
 
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import "@geoman-io/leaflet-geoman-free";
-import DrawControl from "./Draw Control";
-import MapUpdater from "./Map Updater";
+import DrawControl from "./DrawControl";
+import MapUpdater from "./MapUpdater";
 import GeoJsonDisplay from "./GeoJsonDisplay";
 import CropStressAnalysis from "./Analysis";
 import AllFarmsDisplay from "./AllFarms";
@@ -85,7 +85,6 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
           <AllFarmsDisplay
             farms={farms}
             onFarmClick={(farm) => {
-              console.log("Farm clicked:", farm);
               setSelectedFarm(farm);
             }}
           />
@@ -95,7 +94,6 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
           <AllFarmsDisplay
             farms={segmentedFarms}
             onFarmClick={(farm) => {
-              console.log("Farm clicked:", farm);
               setSelectedFarm(farm);
             }}
           />

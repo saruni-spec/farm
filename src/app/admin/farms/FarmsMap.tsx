@@ -1,6 +1,6 @@
 "use client";
-import GeoJsonDisplay from "@/app/dashboard/components/Map Functionality/GeoJsonDisplay";
-import MapUpdater from "@/app/dashboard/components/Map Functionality/Map Updater";
+import GeoJsonDisplay from "@/app/dashboard/components/MapFunctionality/GeoJsonDisplay";
+import MapUpdater from "@/app/dashboard/components/MapFunctionality/MapUpdater";
 import useDashboardStore from "@/stores/useDashboardStore";
 import { useEffect, useState } from "react";
 import { LayersControl, MapContainer, TileLayer } from "react-leaflet";

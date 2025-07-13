@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
 import useDashboardStore from "@/stores/useDashboardStore";
 import { useRouter } from "next/navigation";
+import { feature } from "@/types/geometry";
+import { deleteFarm, updateFarm } from "@/lib/farm";
 const MiniMap = dynamic(() => import("@/components/MiniMap"), { ssr: false });
 
 // Define the types for county, sub-county, and ward
@@ -72,61 +74,23 @@ const MapLayers = () => {
 
   useEffect(() => {
     if (selectedFarm) setEditedFarmName(selectedFarm.name || "");
-    console.log("Selected farm:", selectedFarm);
   }, [selectedFarm]);
 
   const handleUpdateFarm = async () => {
-    try {
-      const response = await fetch(
-        `${backendURL}/api/farms/${selectedFarm?.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name: editedFarmName }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to update farm");
-      const result = await response.json();
-      toast.success(result.message || "Farm updated successfully!");
+    if (!selectedFarm) return;
+    const result = await updateFarm(selectedFarm, editedFarmName);
+    if (result) {
       getFarms(router);
       setIsEditModalOpen(false);
-    } catch (error) {
-      toast.error("Update failed.");
     }
   };
 
   const handleDeleteFarm = async () => {
-    const result = await Swal.fire({
-      title: `Delete Farm ${selectedFarm?.name}?`,
-      text: "This action cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#aaa",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (result.isConfirmed && selectedFarm) {
-      try {
-        const response = await fetch(
-          `${backendURL}/api/farms/${selectedFarm.id}`,
-          {
-            method: "DELETE",
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to delete farm");
-
-        const result = await response.json();
-        toast.success(result.message || "Farm deleted successfully!");
-        getFarms(router);
-        setSelectedFarm(null);
-      } catch (error) {
-        toast.error("Delete failed.");
-      }
+    if (!selectedFarm) return;
+    const result = await deleteFarm(selectedFarm);
+    if (result) {
+      getFarms(router);
+      setSelectedFarm(undefined);
     }
   };
 
@@ -312,25 +276,22 @@ const MapLayers = () => {
         </select>
       </div>
       {/* Edit and Delete Buttons */}
-      <div className="flex flex-col">
-        {selectedFarm && <p>{selectedFarm.name || selectedFarm.id}</p>}
 
-        <div className="flex justify-between gap-2">
-          <Button
-            disabled={!selectedFarm}
-            variant={"edit"}
-            onClick={() => setIsEditModalOpen(true)}
-          >
-            Edit Farm
-          </Button>
-          <Button
-            disabled={!selectedFarm}
-            variant={"delete"}
-            onClick={() => handleDeleteFarm()}
-          >
-            Delete Farm
-          </Button>
-        </div>
+      <div className="flex justify-between gap-2">
+        <Button
+          disabled={!selectedFarm}
+          variant={"edit"}
+          onClick={() => setIsEditModalOpen(true)}
+        >
+          Edit {selectedFarm?.name || "Segment"}
+        </Button>
+        <Button
+          disabled={!selectedFarm}
+          variant={"delete"}
+          onClick={() => handleDeleteFarm()}
+        >
+          Delete {selectedFarm?.name || "Segment"}
+        </Button>
       </div>
 
       {/* Date Range */}
@@ -351,7 +312,6 @@ const MapLayers = () => {
         Update Map
       </button>
 
-
       {isEditModalOpen && selectedFarm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
@@ -360,7 +320,9 @@ const MapLayers = () => {
               <MiniMap farm={selectedFarm} />
             </div>
 
-            <h2 className="text-xl font-semibold mb-4">Edit Farm</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Edit {selectedFarm?.name || "Segment"}
+            </h2>
             <label className="block text-sm mb-2 font-medium">Farm Name</label>
             <input
               type="text"
@@ -377,7 +339,7 @@ const MapLayers = () => {
                 Cancel
               </button>
               <button
-                onClick={handleUpdateFarm}
+                onClick={() => handleUpdateFarm()}
                 className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
               >
                 Save Changes
