@@ -5,7 +5,6 @@ import { feature } from "@/types/geometry";
 interface AllFarmsDisplayProps {
   farms: feature[];
   onFarmClick?: (farm: feature) => void;
-  setSelectedFarm?: (farm: feature) => void;
 }
 
 const AllFarmsDisplay: React.FC<AllFarmsDisplayProps> = ({

@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { supabase } from "@/superbase/client";
 import { toast } from "react-toastify";
 import type { FeatureCollection } from "geojson";
-import { LegendData } from "@/app/dashboard/components/Map Functionality/Analysis";
+import { LegendData } from "@/app/dashboard/components/MapFunctionality/Analysis";
 import { feature } from "@/types/geometry";
 
 // Define the state properties
@@ -124,6 +124,7 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   },
   runCropStressAnalysis: () => {
     const { selectedFarm } = get();
+
     if (!selectedFarm || !selectedFarm.geometry) {
       toast.error("Please select a farm first");
       return;

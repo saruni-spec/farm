@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import useDashboardStore from "@/stores/useDashboardStore";
 
-const MapLeaflet = dynamic(() => import("./Map Functionality/Map Leaflet"), {
+const MapLeaflet = dynamic(() => import("./MapFunctionality/MapLeaflet"), {
   ssr: false,
 });
 

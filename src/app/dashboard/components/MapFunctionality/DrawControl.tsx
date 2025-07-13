@@ -150,21 +150,6 @@ const DrawControl = ({
     };
   }, [map, onDrawFinish]);
 
-  // useEffect(() => {
-  //   if (segmentedFarms && segmentedFarms.length > 0) {
-  //     map.eachLayer((layer) => {
-  //       console.log(layer.options.pane);
-  //       if (
-  //         layer.options.pane === "specificFarmPane" ||
-  //         layer.options.pane === "overlayPane" ||
-  //         layer.options.pane === "tilePane"
-  //       ) {
-  //         map.removeLayer(layer);
-  //       }
-  //     });
-  //   }
-  // }, [segmentedFarms]);
-
   useEffect(() => {
     if (segmentedFarms && segmentedFarms.length > 0 && drawnItemsRef.current) {
       drawnItemsRef.current.clearLayers();
@@ -173,6 +158,15 @@ const DrawControl = ({
         .getContainer()
         .querySelectorAll("path.leaflet-interactive");
       svgElements.forEach((el) => el.remove());
+
+      const svgElement = map
+        .getContainer()
+        .querySelectorAll("leaflet-interactive");
+      svgElement.forEach((el) => el.remove());
+
+      document
+        .querySelectorAll("leaflet-interactive")
+        .forEach((el) => el.remove());
     }
   }, [segmentedFarms]);
 
