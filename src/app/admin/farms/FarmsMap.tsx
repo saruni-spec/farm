@@ -13,7 +13,7 @@ import "@geoman-io/leaflet-geoman-free";
 
 const FarmsMap = () => {
   const [mounted, setMounted] = useState(false);
-  const { lat, long, geoData } = useDashboardStore();
+  const { lat, long, selectedFarmGeoData } = useDashboardStore();
   const position: [number, number] = [lat, long];
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const FarmsMap = () => {
           <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
         </LayersControl.BaseLayer>
       </LayersControl>
-      {geoData && <GeoJsonDisplay geoData={geoData} />}
+      {selectedFarmGeoData && <GeoJsonDisplay geoData={selectedFarmGeoData} />}
     </MapContainer>
   );
 };

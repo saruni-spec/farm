@@ -57,6 +57,7 @@ const FarmsPage = () => {
   const handlePageClick = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
+
   const handleDeleteFarm = async (
     e: React.MouseEvent<HTMLButtonElement>,
     farmId: string
@@ -66,6 +67,46 @@ const FarmsPage = () => {
 
     fetchFarms();
     setSelectedFarm(undefined);
+  };
+
+  // New function to handle GeoJSON download
+  const handleDownloadGeoJSON = () => {
+    if (selectedFarm) {
+      try {
+        // Create a GeoJSON object from the selected farm
+        // The 'feature' type already extends GeoJSON.Feature, so it should be directly usable.
+        const geoJsonData = {
+          type: "FeatureCollection",
+          features: [selectedFarm],
+        };
+
+        const fileName = `${selectedFarm.name || "unnamed_farm"}_${
+          selectedFarm.id
+        }.geojson`;
+        const jsonString = JSON.stringify(geoJsonData, null, 2); // Pretty print JSON
+
+        // Create a Blob from the JSON string
+        const blob = new Blob([jsonString], { type: "application/json" });
+
+        // Create a temporary URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link element and trigger the download
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName; // Set the download filename
+        document.body.appendChild(link); // Append to body (required for Firefox)
+        link.click(); // Programmatically click the link to trigger download
+        document.body.removeChild(link); // Remove the link
+        URL.revokeObjectURL(url); // Clean up the URL object
+      } catch (error) {
+        console.error("Error downloading GeoJSON:", error);
+        // You might want to show a user-friendly error message here
+      }
+    } else {
+      console.warn("No farm selected for download.");
+      // You might want to show a message to the user that no farm is selected
+    }
   };
 
   const LoadingSkeleton = () => (
@@ -387,42 +428,66 @@ const FarmsPage = () => {
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
             <div className="p-4 sm:p-6">
               {selectedFarm && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-bold text-blue-800">
-                      {selectedFarm.name || "Unnamed Farm"}
-                    </h3>
-                    <button
-                      onClick={(e) =>
-                        handleDeleteFarm(e, selectedFarm.id as string)
-                      }
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                    >
-                      <svg
-                        className="w-3 h-3 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2 shadow-sm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0 pr-3">
+                      <h3 className="text-lg font-bold text-blue-800 truncate">
+                        {selectedFarm.farmer?.profile?.first_name}{" "}
+                        {selectedFarm.farmer?.profile?.last_name}:{" "}
+                        {selectedFarm.name || "Unnamed Farm"}
+                      </h3>
+                    </div>
+                    <div className="flex flex-col space-y-2 flex-shrink-0">
+                      <button
+                        onClick={handleDownloadGeoJSON}
+                        className="inline-flex items-center justify-center w-8 h-8 border border-transparent rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                        title="Download GeoJSON"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={(e) =>
+                          handleDeleteFarm(e, selectedFarm.id as string)
+                        }
+                        className="inline-flex items-center justify-center w-8 h-8 border border-transparent rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                        title="Delete Farm"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-sm text-blue-700 mb-1">
-                    Created on{" "}
+                  <p className="text-sm text-blue-700">
+                    Created{" "}
                     {new Date(
                       selectedFarm?.created_at as string
                     ).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
+                      month: "short",
                       day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
+                      year: "numeric",
                     })}
                   </p>
                 </div>
