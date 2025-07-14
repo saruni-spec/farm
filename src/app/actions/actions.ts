@@ -15,7 +15,9 @@ export async function getAllFarms(offset = 0, limit = 10) {
     // Supabase's range is inclusive, so `offset + limit - 1` gives the end index.
     const { data, error, count } = await supabase
       .from("farm")
-      .select("*", { count: "exact" })
+      .select("*,farmer(profile(first_name,last_name,created_at))", {
+        count: "exact",
+      })
       .range(offset, offset + limit - 1);
 
     if (error) {
