@@ -134,8 +134,8 @@ const DrawControl = ({
       });
     };
 
-    map.off("draw:created", onDrawCreated as L.LeafletEventHandlerFn);
-    map.off("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
+    map.on("draw:created", onDrawCreated as L.LeafletEventHandlerFn);
+    map.on("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
 
     return () => {
       if (drawControlRef.current) {
@@ -145,9 +145,8 @@ const DrawControl = ({
         map.removeLayer(drawnItemsRef.current);
         drawnItemsRef.current = null;
       }
-
-      map.on("draw:created", onDrawCreated as L.LeafletEventHandlerFn);
-      map.on("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
+      map.off("draw:created", onDrawCreated as L.LeafletEventHandlerFn);
+      map.off("draw:edited", onDrawEdited as L.LeafletEventHandlerFn);
     };
   }, [map, onDrawFinish]);
 
