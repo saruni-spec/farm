@@ -1,4 +1,5 @@
 "use server";
+import { feature } from "@/types/geometry";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -16,7 +17,7 @@ export async function getAllFarms(offset = 0, limit = 10) {
     const { data, error, count } = await supabase
       .from("farm")
       .select(
-        "*,crop(name),selected_area(geometry,properties,farmer(profile(first_name,last_name,created_at)))",
+        "*,crop(name),segment(geometry,properties,farmer(profile(first_name,last_name,created_at)))",
         {
           count: "exact",
         }
@@ -28,14 +29,15 @@ export async function getAllFarms(offset = 0, limit = 10) {
       throw new Error(`Failed to fetch all farms: ${error.message}`);
     }
 
-    const farms = data.map((farm) => ({
+    const farms: feature[] = data.map((farm) => ({
       name: farm.name,
-      geometry: farm.selected_area.geometry,
-      properties: farm.selected_area.properties,
-      farmer: farm.selected_area.farmer,
+      geometry: farm.segment.geometry,
+      properties: farm.segment.properties,
+      farmer: farm.segment.farmer,
       id: farm.id,
       created_at: farm.created_at,
       crop: farm.crop,
+      type: "Feature",
     }));
 
     // Return both the fetched data and the total count of farms for pagination calculation.
