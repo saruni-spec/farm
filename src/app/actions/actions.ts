@@ -15,9 +15,12 @@ export async function getAllFarms(offset = 0, limit = 10) {
     // Supabase's range is inclusive, so `offset + limit - 1` gives the end index.
     const { data, error, count } = await supabase
       .from("farm")
-      .select("*,farmer(profile(first_name,last_name,created_at))", {
-        count: "exact",
-      })
+      .select(
+        "*,crop(name),selected_area(geometry,properties,farmer(profile(first_name,last_name,created_at)))",
+        {
+          count: "exact",
+        }
+      )
       .range(offset, offset + limit - 1);
 
     if (error) {
@@ -25,8 +28,18 @@ export async function getAllFarms(offset = 0, limit = 10) {
       throw new Error(`Failed to fetch all farms: ${error.message}`);
     }
 
+    const farms = data.map((farm) => ({
+      name: farm.name,
+      geometry: farm.selected_area.geometry,
+      properties: farm.selected_area.properties,
+      farmer: farm.selected_area.farmer,
+      id: farm.id,
+      created_at: farm.created_at,
+      crop: farm.crop,
+    }));
+
     // Return both the fetched data and the total count of farms for pagination calculation.
-    return { data, count };
+    return { data: farms, count };
   } catch (err) {
     console.error(
       "An unexpected error occurred while fetching all farms:",
