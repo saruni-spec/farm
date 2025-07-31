@@ -8,6 +8,7 @@ import { supabase } from "@/superbase/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import useDashboardStore from "@/stores/useDashboardStore";
+import AnalysisCards from "./AnalysisCards";
 
 const MapLeaflet = dynamic(() => import("./MapFunctionality/MapLeaflet"), {
   ssr: false,
@@ -29,7 +30,7 @@ const Map = () => {
     showAllFarms,
     runCropStressAnalysis,
     toggleShowAllFarms,
-    setSegmentedFarms,
+    setCreatedSegments: setSegmentedFarms,
   } = useDashboardStore();
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
@@ -82,6 +83,7 @@ const Map = () => {
 
       .then((data) => {
         getFarms(router);
+
         setSegmentedFarms(data);
         toast.success("Field area segmented successfully");
       })
@@ -335,6 +337,7 @@ const Map = () => {
       )}
 
       <MapLeaflet />
+      <AnalysisCards />
     </div>
   );
 };

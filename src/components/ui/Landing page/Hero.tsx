@@ -11,7 +11,7 @@ const Hero = () => {
       className={`pt-16 ${styles.background} flex justify-center items-center`}
     >
       <div className="flex flex-col items-center text-center text-white px-6 md:px-0 max-w-6xl space-y-6 md:space-y-10">
-        <h2 className="text-2xl md:text-3xl lg:text-5xl font-extrabold leading-tight">
+        <h2 className="text-5xl md:text-6xl font-extrabold leading-tight">
           Revolutionize Your Tea Production with AI-Powered Insights
         </h2>
         <p className="text-base md:text-2xl text-gray-100 max-w-xl">

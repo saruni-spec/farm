@@ -11,7 +11,8 @@ import Swal from "sweetalert2";
 import useDashboardStore from "@/stores/useDashboardStore";
 import { useRouter } from "next/navigation";
 import { feature } from "@/types/geometry";
-import { deleteFarm, updateFarm } from "@/lib/farm";
+import { deleteFarm, saveFarmFromSegment } from "@/lib/farm";
+import { getAvailableCrops } from "@/app/actions/actions";
 const MiniMap = dynamic(() => import("@/components/MiniMap"), { ssr: false });
 
 // Define the types for county, sub-county, and ward
@@ -44,6 +45,11 @@ interface Ward {
   };
 }
 
+interface Crop {
+  id: string;
+  name: string;
+}
+
 const MapLayers = () => {
   const {
     setLat,
@@ -53,6 +59,8 @@ const MapLayers = () => {
     selectedFarm,
     setSelectedFarm,
     getFarms,
+    createdSegments,
+    setCreatedSegments,
   } = useDashboardStore();
   const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
@@ -68,6 +76,8 @@ const MapLayers = () => {
   const [selectedCounty, setSelectedCounty] = useState("");
   const [selectedSubCounty, setSelectedSubCounty] = useState("");
   const [selectedWard, setSelectedWard] = useState("");
+  const [crops, setCrops] = useState<Crop[]>([]);
+  const [selectedCropId, setSelectedCropId] = useState("");
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedFarmName, setEditedFarmName] = useState("");
@@ -78,20 +88,41 @@ const MapLayers = () => {
 
   const handleUpdateFarm = async () => {
     if (!selectedFarm) return;
-    const result = await updateFarm(selectedFarm, editedFarmName);
+    const result = await saveFarmFromSegment(
+      selectedFarm,
+      editedFarmName,
+      selectedCropId
+    );
     if (result) {
       getFarms(router);
       setIsEditModalOpen(false);
     }
   };
 
-  const handleDeleteFarm = async () => {
+  const handleDeleteFarm = async (section: "farm" | "segment") => {
     if (!selectedFarm) return;
+    if (section === "segment") {
+      removeSegment(selectedFarm);
+      return;
+    }
     const result = await deleteFarm(selectedFarm);
     if (result) {
       getFarms(router);
       setSelectedFarm(undefined);
     }
+  };
+
+  const removeSegment = (seg: feature) => {
+    if (!createdSegments) return;
+    const updatedSegments = createdSegments.filter(
+      (segment) => segment.id !== seg.id
+    );
+    setCreatedSegments(updatedSegments);
+  };
+
+  const getCrops = async () => {
+    const data = await getAvailableCrops();
+    setCrops(data);
   };
 
   useEffect(() => {
@@ -104,6 +135,7 @@ const MapLayers = () => {
     );
     setAllCounties(sortedCounties);
     setLoadingCounties(false);
+    getCrops();
   }, []);
 
   useEffect(() => {
@@ -288,7 +320,9 @@ const MapLayers = () => {
         <Button
           disabled={!selectedFarm}
           variant={"delete"}
-          onClick={() => handleDeleteFarm()}
+          onClick={() =>
+            handleDeleteFarm(selectedFarm?.name ? "farm" : "segment")
+          }
         >
           Delete {selectedFarm?.name || "Segment"}
         </Button>
@@ -320,9 +354,21 @@ const MapLayers = () => {
               <MiniMap farm={selectedFarm} />
             </div>
 
-            <h2 className="text-xl font-semibold mb-4">
-              Edit {selectedFarm?.name || "Segment"}
-            </h2>
+            <label className="block text-sm mb-2 font-medium">
+              Crop Planted
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              value={selectedCropId}
+              onChange={(e) => setSelectedCropId(e.target.value)}
+            >
+              <option value="">Select Crop</option>
+              {crops.map((crop) => (
+                <option key={crop.id} value={crop.id}>
+                  {crop.name}
+                </option>
+              ))}
+            </select>
             <label className="block text-sm mb-2 font-medium">Farm Name</label>
             <input
               type="text"

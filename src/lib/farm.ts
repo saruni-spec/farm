@@ -3,28 +3,30 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-export const updateFarm = async (
-  selectedFarm: feature | null,
-  farmName: string
+export const saveFarmFromSegment = async (
+  segment: feature | null,
+  farmName: string,
+  cropId: string
 ) => {
   try {
-    const response = await fetch(
-      `${backendURL}/api/farms/${selectedFarm?.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: farmName }),
-      }
-    );
+    const response = await fetch(`${backendURL}/api/save_farm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: farmName,
+        segment_id: segment?.id,
+        crop_id: cropId,
+      }),
+    });
 
-    if (!response.ok) throw new Error("Failed to update farm");
+    if (!response.ok) throw new Error("Failed to save farm");
     const result = await response.json();
-    toast.success(result.message || "Farm updated successfully!");
+    toast.success(result.message || "Farm saved successfully!");
     return true;
   } catch (error) {
-    toast.error("Update failed.");
+    toast.error("Save failed.");
     console.error(error);
     return false;
   }

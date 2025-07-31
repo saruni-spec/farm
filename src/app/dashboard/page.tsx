@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AnalysisCards from "./components/AnalysisCards";
 import ManagementZones from "./components/ManagementZones";
 import Map from "./components/Map";
 import MapLayers from "./components/MapLayers";
@@ -18,7 +17,6 @@ const Dashboard = () => {
 
   return (
     <div className="py-22 px-3 text-black">
-      <AnalysisCards />
       <div className="flex flex-col lg:flex-row gap-3 mt-3">
         <div className="lg:w-2/3">
           <Map />

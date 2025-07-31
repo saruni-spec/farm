@@ -94,3 +94,18 @@ export async function getProfile(id: string) {
     throw new Error("An unexpected error occurred.");
   }
 }
+
+export async function getAvailableCrops() {
+  try {
+    const { data, error } = await supabase.from("crop").select("id,name");
+    if (error) {
+      console.error("Error fetching crops:", error);
+      throw new Error(`Failed to fetch crops: ${error.message}`);
+    }
+
+    return data;
+  } catch (err) {
+    console.error("An unexpected error occurred while fetching crops:", err);
+    throw new Error("An unexpected error occurred.");
+  }
+}

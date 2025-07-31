@@ -14,7 +14,7 @@ const DrawControl = ({
 }: {
   onDrawFinish: (bbox: number[], geoJson: FeatureCollection) => void;
 }) => {
-  const { segmentedFarms } = useDashboardStore();
+  const { createdSegments: segmentedFarms } = useDashboardStore();
   const map = useMap();
   const drawControlRef = useRef<L.Control.Draw | null>(null);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);

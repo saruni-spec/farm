@@ -34,7 +34,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
     setSelectedFarm,
     selectedFarmGeoData,
     showLegend,
-    segmentedFarms,
+    createdSegments: segmentedFarms,
   } = useDashboardStore();
   const position: [number, number] = [lat, long];
   const [mounted, setMounted] = useState(false);
@@ -49,6 +49,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
   }, []);
 
   if (!mounted) return null;
+  const farmsToDisplay = showAllFarms ? farms : segmentedFarms;
 
   return (
     <div
@@ -81,18 +82,9 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
         )}
 
         {/* Show all farms when showAllFarms is true */}
-        {showAllFarms && (
+        {farmsToDisplay && (
           <AllFarmsDisplay
-            farms={farms}
-            onFarmClick={(farm) => {
-              setSelectedFarm(farm);
-            }}
-          />
-        )}
-
-        {segmentedFarms && (
-          <AllFarmsDisplay
-            farms={segmentedFarms}
+            farms={farmsToDisplay}
             onFarmClick={(farm) => {
               setSelectedFarm(farm);
             }}
@@ -100,7 +92,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
         )}
 
         {/* Crop Stress Analysis Component - only when not showing all farms */}
-        {!showAllFarms && selectedFarm && (
+        {!farmsToDisplay && selectedFarm && (
           <>
             <CropStressAnalysis
               selectedFarm={selectedFarm}

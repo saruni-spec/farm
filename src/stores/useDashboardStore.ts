@@ -22,7 +22,7 @@ interface DashboardState {
   isAnalyzing: boolean;
   analysisLegend: LegendData[];
   showLegend: boolean;
-  segmentedFarms?: feature[];
+  createdSegments?: feature[];
   showAllFarms: boolean;
 }
 
@@ -43,7 +43,7 @@ interface DashboardActions {
   onAnalysisComplete: (legendData: LegendData[]) => void;
   onAnalysisError: (error: string) => void;
   toggleShowAllFarms: () => void;
-  setSegmentedFarms: (segmentedFarms: feature[]) => void;
+  setCreatedSegments: (createdSegments: feature[]) => void;
 }
 
 // Combine state and actions
@@ -65,7 +65,7 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   analysisLegend: [],
   showLegend: false,
   showAllFarms: false,
-  segmentedFarms: undefined,
+  createdSegments: undefined,
 
   // Actions
   setLat: (lat) => set({ lat }),
@@ -73,7 +73,8 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   setIsSegmenting: (segmenting) => set({ segmenting }),
   setSaving: (saving) => set({ saving }),
   setFarms: (farms) => set({ farms }),
-  setSegmentedFarms: (segmentedFarms) => set({ segmentedFarms }),
+  setCreatedSegments: (createdSegments) =>
+    set({ createdSegments: createdSegments }),
   setSelectedFarm: (farm: feature | null | undefined) => {
     if (!farm || !farm.geometry) {
       set({ selectedFarmGeoData: undefined });
@@ -110,8 +111,17 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
       }
 
       const result = await response.json();
+      const farms = result.map((farm: any) => {
+        return {
+          name: farm.name,
+          id: farm.id,
+          crop: farm.crop?.name,
+          geometry: farm.segment.geometry,
+          properties: farm.segment.properties,
+        };
+      });
 
-      set({ farms: result });
+      set({ farms });
     } catch (err) {
       console.error("Error fetching farms:", err);
       toast.error("Failed to fetch farms");
@@ -157,7 +167,7 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
         bbox: null,
         selectedFarmGeoData: undefined,
         selectedFarm: null,
-        segmentedFarms: undefined,
+        createdSegments: undefined,
       });
     }
   },
