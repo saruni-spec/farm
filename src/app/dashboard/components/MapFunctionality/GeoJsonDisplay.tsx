@@ -28,10 +28,10 @@ const GeoJsonDisplay = ({ geoData }: { geoData: feature[] }) => {
       const layer = L.geoJSON(feature, {
         pane: "segmentsPane",
         style: {
-          color: "#FFA500",
-          weight: 1,
-          fillColor: "#FFA500",
-          fillOpacity: 0.3,
+          color: "#FF0000",
+          weight: 3,
+          fillColor: "#FF0000",
+          fillOpacity: 0,
         },
       }).addTo(map);
       layers.push(layer);

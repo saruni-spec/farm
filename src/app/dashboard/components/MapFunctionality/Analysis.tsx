@@ -16,6 +16,11 @@ interface CropStressAnalysisProps {
   isAnalyzing: boolean;
   onAnalysisComplete: (legendData: LegendData[]) => void;
   onAnalysisError: (error: string) => void;
+  setAnalysisData: (analysisData: {
+    smi_mean: number;
+    soc_mean: number;
+    stress_mean: number;
+  }) => void;
 }
 
 export interface LegendData {
@@ -40,6 +45,7 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
   isAnalyzing,
   onAnalysisComplete,
   onAnalysisError,
+  setAnalysisData,
 }) => {
   const map = useMap();
   // Use useRef to hold the leaflet control instance
@@ -140,10 +146,15 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
       if (data.status !== "success") {
         throw new Error(data.error || "Analysis failed");
       }
+      console.log(data);
 
       const { files } = data;
 
       clearAnalysisLayers();
+
+      const { smi_mean, soc_mean, stress_mean } = files;
+
+      setAnalysisData({ smi_mean, soc_mean, stress_mean });
 
       if (!layerControlRef.current) {
         layerControlRef.current = L.control.layers(undefined, undefined, {
@@ -237,8 +248,8 @@ const CropStressAnalysis: React.FC<CropStressAnalysisProps> = ({
 
       const layer = new window.GeoRasterLayer({
         georaster,
-        opacity: 0.7,
-        resolution: 64,
+        opacity: 0.8,
+        resolution: 128,
         pixelValuesToColorFn: colorFn,
       });
 

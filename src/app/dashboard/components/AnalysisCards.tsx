@@ -10,9 +10,12 @@ import {
   CloudSnow,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import useDashboardStore from "@/stores/useDashboardStore";
 
-const AnalysisCards = () => {
+const AnalysisCards = ({ className }: { className?: string }) => {
   const iconSize = 24; // Reduced from 32
+
+  const { analysisData } = useDashboardStore();
 
   const [weather, setWeather] = useState<{
     temperature: number;
@@ -58,26 +61,32 @@ const AnalysisCards = () => {
   const cropAnalysis = [
     {
       title: "Average crop stress",
-      value: "32%",
+      value: `${analysisData?.stress_mean?.toFixed(2) || 0}%`,
       color: "red",
       icon: <Flame size={iconSize} className="text-red-600" />,
     },
     {
       title: "Soil Moisture",
-      value: "64%",
+      value: `${
+        analysisData?.smi_mean ? (analysisData?.smi_mean).toFixed(2) : 0
+      }%`,
       color: "blue",
       icon: <Droplet size={iconSize} className="text-blue-600" />,
     },
     {
       title: "Soil Carbon",
-      value: "2.8%",
+      value: `${
+        analysisData?.soc_mean ? (analysisData?.soc_mean).toFixed(2) : 0
+      }%`,
       color: "green",
       icon: <Sprout size={iconSize} className="text-green-600" />,
     },
   ];
 
   return (
-    <div className="flex flex-wrap gap-4 justify-between items-center bg-white px-4 py-3 rounded-lg shadow-sm">
+    <div
+      className={`${className} flex flex-wrap gap-4 justify-between items-center bg-white px-4 py-3 rounded-lg shadow-sm`}
+    >
       {cropAnalysis.map((analysis) => (
         <div
           key={analysis.title}

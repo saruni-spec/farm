@@ -23,6 +23,7 @@ interface DashboardState {
   analysisLegend: LegendData[];
   showLegend: boolean;
   createdSegments?: feature[];
+  analysisData?: { smi_mean: number; soc_mean: number; stress_mean: number };
   showAllFarms: boolean;
 }
 
@@ -44,6 +45,11 @@ interface DashboardActions {
   onAnalysisError: (error: string) => void;
   toggleShowAllFarms: () => void;
   setCreatedSegments: (createdSegments: feature[]) => void;
+  setAnalysisData: (analysisData: {
+    smi_mean: number;
+    soc_mean: number;
+    stress_mean: number;
+  }) => void;
 }
 
 // Combine state and actions
@@ -66,7 +72,7 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
   showLegend: false,
   showAllFarms: false,
   createdSegments: undefined,
-
+  analysisData: undefined,
   // Actions
   setLat: (lat) => set({ lat }),
   setLong: (long) => set({ long }),
@@ -171,6 +177,11 @@ const useDashboardStore = create<DashboardStore>((set, get) => ({
       });
     }
   },
+  setAnalysisData: (analysisData: {
+    smi_mean: number;
+    soc_mean: number;
+    stress_mean: number;
+  }) => set({ analysisData }),
 }));
 
 export default useDashboardStore;

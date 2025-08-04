@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import ManagementZones from "./components/ManagementZones";
 import Map from "./components/Map";
 import MapLayers from "./components/MapLayers";
 import useDashboardStore from "@/stores/useDashboardStore";
@@ -16,15 +15,14 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="py-22 px-3 text-black">
-      <div className="flex flex-col lg:flex-row gap-3 mt-3">
-        <div className="lg:w-2/3">
-          <Map />
+    <div className="pt-16 pb-5 px-3 text-black h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[3fr_1fr] gap-3 mt-3 h-full">
+        <div className="h-full">
+          <Map className="h-full" />
         </div>
 
-        <div className="lg:w-1/3 space-y-4">
-          <MapLayers />
-          <ManagementZones />
+        <div className="space-y-4 h-full">
+          <MapLayers className="h-full" />
         </div>
       </div>
     </div>

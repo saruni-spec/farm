@@ -16,10 +16,10 @@ import LegendControl from "./LegendControl";
 import SelectSpecificFarm from "./SelectSpecificFarm";
 
 interface MapLeafletProps {
-  height?: number;
+  className?: string;
 }
 
-const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
+const MapLeaflet: React.FC<MapLeafletProps> = ({ className }) => {
   const {
     lat,
     long,
@@ -34,6 +34,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
     setSelectedFarm,
     selectedFarmGeoData,
     showLegend,
+    setAnalysisData,
     createdSegments: segmentedFarms,
   } = useDashboardStore();
   const position: [number, number] = [lat, long];
@@ -52,10 +53,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
   const farmsToDisplay = showAllFarms ? farms : segmentedFarms;
 
   return (
-    <div
-      style={{ height: `${height}px`, width: "100%" }}
-      className="relative z-0"
-    >
+    <div className={`relative z-0 w-full ${className}`}>
       <MapContainer
         center={position}
         zoom={16}
@@ -99,6 +97,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({ height = 350 }) => {
               isAnalyzing={isAnalyzing}
               onAnalysisComplete={onAnalysisComplete}
               onAnalysisError={onAnalysisError}
+              setAnalysisData={setAnalysisData}
             />
           </>
         )}

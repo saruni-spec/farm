@@ -3,7 +3,16 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
-import { RefreshCcw } from "lucide-react";
+import {
+  RefreshCcw,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  FileText,
+  Droplets,
+  Leaf,
+  Cloud,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { counties, constituencies } from "kenya";
 import { Button } from "@/components/ui/button";
@@ -12,8 +21,12 @@ import useDashboardStore from "@/stores/useDashboardStore";
 import { useRouter } from "next/navigation";
 import { feature } from "@/types/geometry";
 import { deleteFarm, saveFarmFromSegment } from "@/lib/farm";
-import { getAvailableCrops } from "@/app/actions/actions";
+import { getAnalysis, getAvailableCrops } from "@/app/actions/actions";
+
 const MiniMap = dynamic(() => import("@/components/MiniMap"), { ssr: false });
+
+// Import the AnalysisModal component (you'll need to create this file)
+import AnalysisModal from "./AnalysisModal";
 
 // Define the types for county, sub-county, and ward
 interface County {
@@ -50,7 +63,57 @@ interface Crop {
   name: string;
 }
 
-const MapLayers = () => {
+type analysisData = {
+  id: string;
+  analysis_date: string;
+  analysis_data: {
+    crop_stress: number;
+    soil_carbon: number;
+    soil_moisture: number;
+    weather: {
+      temperature: number;
+      humidity: number;
+      wind_speed: number;
+      precipitation: number;
+    };
+  }[];
+};
+
+// Collapsible Section Component
+const CollapsibleSection = ({
+  title,
+  children,
+  defaultExpanded = false,
+  disabled = false,
+}: {
+  title: string;
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
+  disabled?: boolean;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  return (
+    <div className="border rounded-lg">
+      <button
+        onClick={() => !disabled && setIsExpanded(!isExpanded)}
+        disabled={disabled}
+        className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-t-lg ${
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
+      >
+        <span className="font-medium text-gray-700">{title}</span>
+        {!disabled &&
+          (isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
+      </button>
+      {isExpanded && (
+        <div className="p-3 border-t bg-gray-50/30">{children}</div>
+      )}
+    </div>
+  );
+};
+
+const MapLayers = ({ className }: { className?: string }) => {
   const {
     setLat,
     setLong,
@@ -62,7 +125,6 @@ const MapLayers = () => {
     createdSegments,
     setCreatedSegments,
   } = useDashboardStore();
-  const backendURL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
 
   const [allCounties, setAllCounties] = useState<County[]>([]);
@@ -81,6 +143,36 @@ const MapLayers = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedFarmName, setEditedFarmName] = useState("");
+  const [analysisData, setAnalysisData] = useState<analysisData[]>([]);
+
+  // New state for analysis modal
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [currentAnalysisData, setCurrentAnalysisData] = useState({
+    cropStress: [
+      {
+        cropStress: analysisData[0]?.analysis_data[0]?.crop_stress,
+        date: analysisData[0]?.analysis_date,
+      },
+    ],
+    soilMoisture: [
+      {
+        soilMoisture: analysisData[0]?.analysis_data[0]?.soil_moisture,
+        date: analysisData[0]?.analysis_date,
+      },
+    ],
+    soilCarbon: [
+      {
+        soilCarbon: analysisData[0]?.analysis_data[0]?.soil_carbon,
+        date: analysisData[0]?.analysis_date,
+      },
+    ],
+    weather: [
+      {
+        weather: analysisData[0]?.analysis_data[0]?.weather,
+        date: analysisData[0]?.analysis_date,
+      },
+    ],
+  });
 
   useEffect(() => {
     if (selectedFarm) setEditedFarmName(selectedFarm.name || "");
@@ -130,9 +222,11 @@ const MapLayers = () => {
     const totalCounties = counties.filter(
       (county) => county.name !== "DIASPORA"
     );
-    const sortedCounties = totalCounties.sort(
-      (a, b) => parseInt(a.code) - parseInt(b.code)
+
+    const sortedCounties = totalCounties.sort((a, b) =>
+      a.name.localeCompare(b.name)
     );
+
     setAllCounties(sortedCounties);
     setLoadingCounties(false);
     getCrops();
@@ -202,6 +296,147 @@ const MapLayers = () => {
     }
   };
 
+  const getCropAnalysis = async () => {
+    let data = analysisData;
+
+    if (!data || data.length === 0) {
+      data = await getComprehensiveAnalysis(selectedFarm?.id);
+    }
+
+    const cropStressData = data.map((analysis) => {
+      return {
+        cropStress: analysis.analysis_data[0].crop_stress,
+        date: analysis.analysis_date,
+      };
+    });
+
+    // Set the analysis data and open modal
+    setCurrentAnalysisData((prev) => ({
+      ...prev,
+      cropStress: cropStressData,
+    }));
+    setIsAnalysisModalOpen(true);
+
+    return cropStressData;
+  };
+
+  const getSoilMoistureAnalysis = async () => {
+    let data = analysisData;
+
+    if (!data || data.length === 0) {
+      data = await getComprehensiveAnalysis(selectedFarm?.id);
+    }
+
+    const soilMoistureData = data.map((analysis) => {
+      return {
+        soilMoisture: analysis.analysis_data[0].soil_moisture,
+        date: analysis.analysis_date,
+      };
+    });
+
+    setCurrentAnalysisData((prev) => ({
+      ...prev,
+      soilMoisture: soilMoistureData,
+    }));
+    setIsAnalysisModalOpen(true);
+
+    return soilMoistureData;
+  };
+
+  const getSoilCarbonAnalysis = async () => {
+    let data = analysisData;
+
+    if (!data || data.length === 0) {
+      data = await getComprehensiveAnalysis(selectedFarm?.id);
+    }
+
+    const soilCarbonData = data.map((analysis) => {
+      return {
+        soilCarbon: analysis.analysis_data[0].soil_carbon,
+        date: analysis.analysis_date,
+      };
+    });
+
+    setCurrentAnalysisData((prev) => ({
+      ...prev,
+      soilCarbon: soilCarbonData,
+    }));
+    setIsAnalysisModalOpen(true);
+
+    return soilCarbonData;
+  };
+
+  const getWeatherAnalysis = async () => {
+    let data = analysisData;
+
+    if (!data || data.length === 0) {
+      data = await getComprehensiveAnalysis(selectedFarm?.id);
+    }
+
+    const weatherData = data.map((analysis) => {
+      return {
+        weather: analysis.analysis_data[0].weather,
+        date: analysis.analysis_date,
+      };
+    });
+
+    setCurrentAnalysisData((prev) => ({
+      ...prev,
+      weather: weatherData,
+    }));
+    setIsAnalysisModalOpen(true);
+
+    return weatherData;
+  };
+
+  const getComprehensiveAnalysis = async (
+    farmId: string | undefined | number
+  ) => {
+    if (!farmId) {
+      toast.error("No farm selected");
+      return [];
+    }
+    const data = await getAnalysis(farmId);
+    setAnalysisData(data);
+
+    // If called from the comprehensive button, prepare all data and open modal
+    if (data && data.length > 0) {
+      const cropStressData = data.map((analysis) => ({
+        cropStress: analysis.analysis_data[0].crop_stress,
+        date: analysis.analysis_date,
+      }));
+
+      const soilMoistureData = data.map((analysis) => ({
+        soilMoisture: analysis.analysis_data[0].soil_moisture,
+        date: analysis.analysis_date,
+      }));
+
+      const soilCarbonData = data.map((analysis) => ({
+        soilCarbon: analysis.analysis_data[0].soil_carbon,
+        date: analysis.analysis_date,
+      }));
+
+      const weatherData = data.map((analysis) => ({
+        weather: analysis.analysis_data[0].weather,
+        date: analysis.analysis_date,
+      }));
+
+      setCurrentAnalysisData({
+        cropStress: cropStressData,
+        soilMoisture: soilMoistureData,
+        soilCarbon: soilCarbonData,
+        weather: weatherData,
+      });
+    }
+
+    return data || [];
+  };
+
+  const handleComprehensiveReport = async () => {
+    await getComprehensiveAnalysis(selectedFarm?.id);
+    setIsAnalysisModalOpen(true);
+  };
+
   //Styling for the individual dropdowns
   const dropdownClasses = "flex flex-col w-full";
 
@@ -210,142 +445,228 @@ const MapLayers = () => {
     "mt-1 p-2 border rounded-md disabled:cursor-not-allowed disabled:bg-gray-100";
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Map Layers</h2>
+    <div className={`${className} bg-white rounded-lg shadow p-4 space-y-4`}>
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Map Layers</h2>
 
-      {/* Location selectors */}
-      <div className={dropdownClasses}>
-        <select
-          name="county"
-          className={selectClasses}
-          disabled={segmenting}
-          onChange={handleCountyChange}
-        >
-          <option value={""}>Select County</option>
-          {loadingCounties ? (
-            <option>Loading...</option>
-          ) : (
-            allCounties.map((county) => {
-              return (
-                <option key={county.code} value={county.code}>
-                  {county.name.charAt(0) + county.name.slice(1).toLowerCase()}
-                </option>
-              );
-            })
-          )}
-        </select>
-      </div>
-      <div className={dropdownClasses}>
-        <select
-          name="SubCounty"
-          className={selectClasses}
-          onChange={handleSubCountyChange}
-          disabled={!selectedCounty || segmenting}
-        >
-          <option value={""}>Select Sub-County</option>
-          {loadingConstituencies ? (
-            <option>Loading...</option>
-          ) : (
-            allConstituencies.map((SubCounty) => {
-              return (
-                <option key={SubCounty.code} value={SubCounty.code}>
-                  {SubCounty.name.charAt(0) +
-                    SubCounty.name.slice(1).toLowerCase()}
-                </option>
-              );
-            })
-          )}
-        </select>
-      </div>
-      <div className={dropdownClasses}>
-        <select
-          name="ward"
-          className={selectClasses}
-          onChange={handleWardChange}
-          disabled={!selectedSubCounty || segmenting}
-        >
-          <option value={""}>Select Ward</option>
-          {loadingWards ? (
-            <option>Loading...</option>
-          ) : (
-            allWards.map((ward) => {
-              return (
-                <option key={ward.code} value={ward.code}>
-                  {ward.name.charAt(0).toUpperCase() +
-                    ward.name.slice(1).toLowerCase()}
-                </option>
-              );
-            })
-          )}
-        </select>
-      </div>
-
-      {/* Farms dropdown */}
-      <div className={dropdownClasses}>
-        <select
-          className={selectClasses}
-          value={selectedFarm?.id || ""}
-          onChange={(e) => {
-            const selected = farms.find((farm) => farm.id === e.target.value);
-            setSelectedFarm(selected);
-          }}
-          disabled={farms.length === 0}
-        >
-          {farms.length === 0 ? (
-            <option>No farms to display</option>
-          ) : (
-            <>
-              <option value={""}>Select farm</option>
-              {farms.map((farm) => {
-                return (
-                  <option key={farm.id} value={farm.id}>
-                    {farm.name || `Farm ${farm.id}`}
-                  </option>
+      {/* Farm Management Section - Expanded by default */}
+      <CollapsibleSection title="Farm Management" defaultExpanded={true}>
+        <div className="space-y-4">
+          {/* Farms dropdown */}
+          <div className={dropdownClasses}>
+            <select
+              className={selectClasses}
+              value={selectedFarm?.id || ""}
+              onChange={(e) => {
+                const selected = farms.find(
+                  (farm) => farm.id === e.target.value
                 );
-              })}
-            </>
-          )}
-        </select>
-      </div>
-      {/* Edit and Delete Buttons */}
+                setSelectedFarm(selected);
+              }}
+              disabled={farms.length === 0}
+            >
+              {farms.length === 0 ? (
+                <option>No farms to display</option>
+              ) : (
+                <>
+                  <option value={""}>Select farm</option>
+                  {farms.map((farm) => {
+                    return (
+                      <option key={farm.id} value={farm.id}>
+                        {farm.name || `Farm ${farm.id}`}
+                      </option>
+                    );
+                  })}
+                </>
+              )}
+            </select>
+          </div>
 
-      <div className="flex justify-between gap-2">
-        <Button
-          disabled={!selectedFarm}
-          variant={"edit"}
-          onClick={() => setIsEditModalOpen(true)}
-        >
-          Edit {selectedFarm?.name || "Segment"}
-        </Button>
-        <Button
-          disabled={!selectedFarm}
-          variant={"delete"}
-          onClick={() =>
-            handleDeleteFarm(selectedFarm?.name ? "farm" : "segment")
-          }
-        >
-          Delete {selectedFarm?.name || "Segment"}
-        </Button>
-      </div>
-
-      {/* Date Range */}
-      <div>
-        <label className="block text-sm font-medium mb-2">Date Range</label>
-        <div className="flex gap-2">
-          <input type="date" className="w-full rounded-md border-gray-300" />
-          <input type="date" className="w-full rounded-md border-gray-300" />
+          {/* Edit and Delete Buttons */}
+          <div className="flex justify-between gap-2">
+            <Button
+              disabled={!selectedFarm}
+              variant={"edit"}
+              onClick={() => setIsEditModalOpen(true)}
+            >
+              Edit {selectedFarm?.name || "Segment"}
+            </Button>
+            <Button
+              disabled={!selectedFarm}
+              variant={"delete"}
+              onClick={() =>
+                handleDeleteFarm(selectedFarm?.name ? "farm" : "segment")
+              }
+            >
+              Delete {selectedFarm?.name || "Segment"}
+            </Button>
+          </div>
         </div>
-      </div>
+      </CollapsibleSection>
 
-      {/* Update Button */}
-      <button
-        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 mt-2 disabled:cursor-not-allowed disabled:bg-blue-300"
+      {/* Reports Section - Expanded by default */}
+      <CollapsibleSection title="Reports & Analytics" defaultExpanded={true}>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              className="flex items-center justify-center gap-2 p-2 bg-green-50 hover:bg-green-100 border border-green-200 rounded-md text-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!selectedFarm}
+              onClick={getCropAnalysis}
+            >
+              <Leaf size={16} />
+              Crop Analysis
+            </button>
+
+            <button
+              className="flex items-center justify-center gap-2 p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md text-blue-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!selectedFarm}
+              onClick={getSoilMoistureAnalysis}
+            >
+              <Droplets size={16} />
+              Soil Moisture
+            </button>
+
+            <button
+              className="flex items-center justify-center gap-2 p-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md text-amber-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!selectedFarm}
+              onClick={getSoilCarbonAnalysis}
+            >
+              <FileText size={16} />
+              Soil Carbon
+            </button>
+
+            <button
+              className="flex items-center justify-center gap-2 p-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md text-purple-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!selectedFarm}
+              onClick={getWeatherAnalysis}
+            >
+              <Cloud size={16} />
+              Weather
+            </button>
+          </div>
+
+          <button
+            className="w-full flex items-center justify-center gap-2 p-3 bg-gray-800 hover:bg-gray-900 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!selectedFarm}
+            onClick={handleComprehensiveReport}
+          >
+            <Download size={18} />
+            Download Complete Report
+          </button>
+
+          {!selectedFarm && (
+            <p className="text-sm text-gray-500 text-center mt-2">
+              Select a farm to generate reports
+            </p>
+          )}
+        </div>
+      </CollapsibleSection>
+
+      {/* Location Settings Section - Collapsed by default */}
+      <CollapsibleSection
+        title="Location Settings"
+        defaultExpanded={false}
         disabled={segmenting}
       >
-        <RefreshCcw size={18} />
-        Update Map
-      </button>
+        <div className="space-y-4">
+          <div className={dropdownClasses}>
+            <select
+              name="county"
+              className={selectClasses}
+              disabled={segmenting}
+              onChange={handleCountyChange}
+            >
+              <option value={""}>Select County</option>
+              {loadingCounties ? (
+                <option>Loading...</option>
+              ) : (
+                allCounties.map((county) => {
+                  return (
+                    <option key={county.code} value={county.code}>
+                      {county.name.charAt(0) +
+                        county.name.slice(1).toLowerCase()}
+                    </option>
+                  );
+                })
+              )}
+            </select>
+          </div>
+          <div className={dropdownClasses}>
+            <select
+              name="SubCounty"
+              className={selectClasses}
+              onChange={handleSubCountyChange}
+              disabled={!selectedCounty || segmenting}
+            >
+              <option value={""}>Select Sub-County</option>
+              {loadingConstituencies ? (
+                <option>Loading...</option>
+              ) : (
+                allConstituencies.map((SubCounty) => {
+                  return (
+                    <option key={SubCounty.code} value={SubCounty.code}>
+                      {SubCounty.name.charAt(0) +
+                        SubCounty.name.slice(1).toLowerCase()}
+                    </option>
+                  );
+                })
+              )}
+            </select>
+          </div>
+          <div className={dropdownClasses}>
+            <select
+              name="ward"
+              className={selectClasses}
+              onChange={handleWardChange}
+              disabled={!selectedSubCounty || segmenting}
+            >
+              <option value={""}>Select Ward</option>
+              {loadingWards ? (
+                <option>Loading...</option>
+              ) : (
+                allWards.map((ward) => {
+                  return (
+                    <option key={ward.code} value={ward.code}>
+                      {ward.name.charAt(0).toUpperCase() +
+                        ward.name.slice(1).toLowerCase()}
+                    </option>
+                  );
+                })
+              )}
+            </select>
+          </div>
+        </div>
+      </CollapsibleSection>
 
+      {/* Map Controls Section - Collapsed by default */}
+      <CollapsibleSection title="Map Controls" defaultExpanded={false}>
+        <div className="space-y-4">
+          {/* Date Range */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Date Range</label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                className="w-full rounded-md border-gray-300"
+              />
+              <input
+                type="date"
+                className="w-full rounded-md border-gray-300"
+              />
+            </div>
+          </div>
+
+          {/* Update Button */}
+          <button
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+            disabled={segmenting}
+          >
+            <RefreshCcw size={18} />
+            Update Map
+          </button>
+        </div>
+      </CollapsibleSection>
+
+      {/* Edit Modal */}
       {isEditModalOpen && selectedFarm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
@@ -393,6 +714,16 @@ const MapLayers = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Analysis Modal */}
+      {selectedFarm && (
+        <AnalysisModal
+          isOpen={isAnalysisModalOpen}
+          onClose={() => setIsAnalysisModalOpen(false)}
+          farm={selectedFarm}
+          analysisData={currentAnalysisData}
+        />
       )}
     </div>
   );

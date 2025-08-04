@@ -32,7 +32,7 @@ const SelectSpecificFarm = ({ geoData }: { geoData: feature[] }) => {
           color: "#FFA500",
           weight: 3,
           fillColor: "#FFA500",
-          fillOpacity: 0.5,
+          fillOpacity: 0,
         },
       }).addTo(map);
       layers.push(layer);

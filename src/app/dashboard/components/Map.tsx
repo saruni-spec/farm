@@ -14,7 +14,7 @@ const MapLeaflet = dynamic(() => import("./MapFunctionality/MapLeaflet"), {
   ssr: false,
 });
 
-const Map = () => {
+const Map = ({ className }: { className?: string }) => {
   const {
     segmenting,
     setIsSegmenting,
@@ -216,7 +216,7 @@ const Map = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 relative min-h-[500px]">
+    <div className={`${className} bg-white rounded-lg shadow p-6 relative`}>
       {(segmenting || isAnalyzing) && (
         <div className="absolute inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center rounded-lg">
           <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
@@ -228,7 +228,7 @@ const Map = () => {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 h-[10%]">
         <h2 className="text-xl font-semibold text-gray-800">Field Map</h2>
         <div className="flex flex-row gap-4">
           {/* Display All Farms Button */}
@@ -336,8 +336,8 @@ const Map = () => {
         </div>
       )}
 
-      <MapLeaflet />
-      <AnalysisCards />
+      <MapLeaflet className="h-7/10" />
+      <AnalysisCards className="h-1/10" />
     </div>
   );
 };

@@ -17,7 +17,7 @@ export async function getAllFarms(offset = 0, limit = 10) {
     const { data, error, count } = await supabase
       .from("farm")
       .select(
-        "*,crop(name),segment(geometry,properties,farmer(profile(first_name,last_name,created_at)))",
+        "name,id,created_at,crop(name),segment(geometry,properties,farmer(profile(first_name,last_name,created_at)))",
         {
           count: "exact",
         }
@@ -29,16 +29,21 @@ export async function getAllFarms(offset = 0, limit = 10) {
       throw new Error(`Failed to fetch all farms: ${error.message}`);
     }
 
-    const farms: feature[] = data.map((farm) => ({
-      name: farm.name,
-      geometry: farm.segment.geometry,
-      properties: farm.segment.properties,
-      farmer: farm.segment.farmer,
-      id: farm.id,
-      created_at: farm.created_at,
-      crop: farm.crop,
-      type: "Feature",
-    }));
+    const farms: feature[] = data.map((farm) => {
+      const segment = Array.isArray(farm.segment)
+        ? farm.segment[0]
+        : farm.segment;
+      return {
+        name: farm.name,
+        geometry: segment.geometry,
+        properties: segment.properties,
+        farmer: { profile: segment.farmer[0]?.profile[0] },
+        id: farm.id,
+        created_at: farm.created_at,
+        crop: farm.crop,
+        type: "Feature",
+      };
+    });
 
     // Return both the fetched data and the total count of farms for pagination calculation.
     return { data: farms, count };
@@ -121,6 +126,26 @@ export async function getAvailableCrops() {
     return data;
   } catch (err) {
     console.error("An unexpected error occurred while fetching crops:", err);
+    throw new Error("An unexpected error occurred.");
+  }
+}
+
+export async function getAnalysis(farmId: string | number) {
+  try {
+    const { data, error } = await supabase
+      .from("farm_analysis")
+      .select(
+        "id,analysis_date,analysis_data(crop_stress,soil_carbon,soil_moisture,weather)"
+      )
+      .eq("farm_id", farmId);
+    if (error) {
+      console.error("Error fetching farms:", error);
+      throw new Error(`Failed to fetch farms: ${error.message}`);
+    }
+
+    return data;
+  } catch (err) {
+    console.error("An unexpected error occurred while fetching farms:", err);
     throw new Error("An unexpected error occurred.");
   }
 }
